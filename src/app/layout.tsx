@@ -4,7 +4,6 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/features/cart/CartDrawer";
-import { WhatsappFloatingButton } from "@/components/shared/WhatsappFloatingButton";
 import { MobileCartBar } from "@/components/shared/MobileCartBar";
 import { PriceSync } from "@/components/shared/PriceSync";
 
@@ -39,7 +38,6 @@ export default function RootLayout({
         <Footer />
         <CartDrawer />
         <MobileCartBar />
-        <WhatsappFloatingButton />
         <PriceSync />
       </body>
     </html>

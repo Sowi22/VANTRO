@@ -57,6 +57,13 @@ export interface Product {
   tags: string[];
   applications: string[];
   relatedSkus: string[];
+  /**
+   * Ruta de la fotografía real del producto (ej. "/products/carne-molida-premium.jpg"),
+   * relativa a `public/`. Opcional: mientras no exista, la tarjeta sigue
+   * mostrando el ícono de relleno por categoría (`MediaPlaceholder`), tal
+   * como todos los productos actuales.
+   */
+  image?: string;
 }
 
 /**

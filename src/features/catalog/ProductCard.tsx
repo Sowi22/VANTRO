@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { Minus, Plus } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/Button";
@@ -68,7 +69,19 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
       className="flex flex-col gap-3 rounded-[20px] border border-white/[0.06] bg-surface p-3"
     >
       <div className="relative">
-        <MediaPlaceholder category={product.proteinCategory} className="aspect-square w-full" />
+        {product.image ? (
+          <div className="relative aspect-square w-full overflow-hidden rounded-[20px] bg-surface">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 45vw, 220px"
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <MediaPlaceholder category={product.proteinCategory} className="aspect-square w-full" />
+        )}
         {product.tags[0] ? (
           <Badge className="absolute left-2 top-2" variant="default">
             {product.tags[0]}
