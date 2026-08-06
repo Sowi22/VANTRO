@@ -1,0 +1,55 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# configuración local de la herramienta de desarrollo (Claude Code) —
+# no es parte del proyecto, no debe compartirse
+.claude/
+
+# documentos internos de planeación del negocio (PRD, CMS, base de
+# productos, development bible) — no son necesarios para compilar el
+# sitio y contienen información interna, no se publican en el repositorio
+0 README.docx
+01 DEVELOPMENT.docx
+02 VANTRO_PRD_Maestro.docx
+03 VANTRO CMS.docx
+04 PRODUCT DATABASE.docx
+05 VANTRO DEVELOPMENT BIBLE.docx
