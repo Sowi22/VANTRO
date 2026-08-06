@@ -4,9 +4,20 @@ import type {
   BusinessSegment,
   PriceOverrideMap,
   Product,
+  ProductPatchMap,
   ProteinCategory,
 } from "@/types/product.types";
 import type { ActiveFilter } from "@/store/ui.store";
+
+/**
+ * Catálogo base más los productos creados desde la hoja de precios (sku que
+ * no existe en `data/products.ts`). `extraProducts` viene vacío la mayoría
+ * de las veces (nadie ha creado un producto nuevo desde la hoja), en cuyo
+ * caso devolvemos directamente `products` sin copiar el arreglo.
+ */
+function withExtras(extraProducts: Product[]): Product[] {
+  return extraProducts.length > 0 ? [...products, ...extraProducts] : products;
+}
 
 export function getFeaturedProducts(): Product[] {
   return products.filter((product) => product.featured);
@@ -18,22 +29,22 @@ export function getFeaturedProducts(): Product[] {
  * "all" mostraba únicamente los destacados (6 de 31 SKUs) y el resto solo
  * era visible filtrando por negocio, categoría o búsqueda.
  */
-export function getAllProductsSorted(): Product[] {
-  return [...products].sort((a, b) => Number(b.featured) - Number(a.featured));
+export function getAllProductsSorted(extraProducts: Product[] = []): Product[] {
+  return [...withExtras(extraProducts)].sort((a, b) => Number(b.featured) - Number(a.featured));
 }
 
-export function getProductsByBusiness(segment: BusinessSegment): Product[] {
-  return products.filter((product) => product.businessSegments.includes(segment));
+export function getProductsByBusiness(segment: BusinessSegment, extraProducts: Product[] = []): Product[] {
+  return withExtras(extraProducts).filter((product) => product.businessSegments.includes(segment));
 }
 
-export function getProductsByProtein(category: ProteinCategory): Product[] {
-  return products.filter((product) => product.proteinCategory === category);
+export function getProductsByProtein(category: ProteinCategory, extraProducts: Product[] = []): Product[] {
+  return withExtras(extraProducts).filter((product) => product.proteinCategory === category);
 }
 
-export function searchProducts(query: string): Product[] {
+export function searchProducts(query: string, extraProducts: Product[] = []): Product[] {
   const normalized = query.trim().toLowerCase();
   if (!normalized) return [];
-  return products.filter((product) =>
+  return withExtras(extraProducts).filter((product) =>
     [product.name, product.line, ...product.tags, ...product.applications]
       .join(" ")
       .toLowerCase()
@@ -41,10 +52,15 @@ export function searchProducts(query: string): Product[] {
   );
 }
 
-export function getProductsForFilter(filter: ActiveFilter): Product[] {
-  if (filter.type === "business") return getProductsByBusiness(filter.value);
-  if (filter.type === "protein") return getProductsByProtein(filter.value);
-  return getAllProductsSorted();
+/**
+ * `extraProducts`: productos creados desde la hoja de precios (sku que no
+ * existía en `data/products.ts`). Se incluyen en cualquier filtro, igual
+ * que los productos del catálogo base.
+ */
+export function getProductsForFilter(filter: ActiveFilter, extraProducts: Product[] = []): Product[] {
+  if (filter.type === "business") return getProductsByBusiness(filter.value, extraProducts);
+  if (filter.type === "protein") return getProductsByProtein(filter.value, extraProducts);
+  return getAllProductsSorted(extraProducts);
 }
 
 function overrideKey(sku: string, presentationLabel: string): string {
@@ -52,10 +68,10 @@ function overrideKey(sku: string, presentationLabel: string): string {
 }
 
 /**
- * Aplica precios y disponibilidad obtenidos de una fuente externa (hoy:
- * Google Sheet, vía `/api/prices`) sobre el catálogo base. Nunca muta
- * `data/products.ts`: devuelve copias nuevas solo para los productos
- * afectados.
+ * Aplica precios, disponibilidad y foto obtenidos de una fuente externa
+ * (hoy: Google Sheet, vía `/api/prices`) sobre una lista de productos.
+ * Nunca muta `data/products.ts`: devuelve copias nuevas solo para los
+ * productos afectados.
  *
  * Reglas:
  * - Si un producto estaba "pendiente" o "proximamente" y llega un precio
@@ -65,18 +81,22 @@ function overrideKey(sku: string, presentationLabel: string): string {
  *   precio ni su estado en el código.
  * - Si la hoja marca `disponible = Sí`, reactiva un producto aunque en
  *   `data/products.ts` esté definido como agotado.
+ * - Si la hoja trae una `imagen`, reemplaza el ícono de relleno por esa
+ *   foto (funciona igual para productos del código y productos nuevos).
  *
- * Así, publicar, quitar o reactivar un producto es editar una celda en la
- * hoja de cálculo — nunca tocar código ni volver a desplegar.
+ * Así, publicar, quitar, reactivar o ponerle foto a un producto es editar
+ * una celda en la hoja de cálculo — nunca tocar código ni volver a desplegar.
  */
 export function applyPriceOverrides(
   productList: Product[],
   overrides: PriceOverrideMap,
   availability: AvailabilityOverrideMap = {},
+  patches: ProductPatchMap = {},
 ): Product[] {
   const hasPriceOverrides = Object.keys(overrides).length > 0;
   const hasAvailabilityOverrides = Object.keys(availability).length > 0;
-  if (!hasPriceOverrides && !hasAvailabilityOverrides) return productList;
+  const hasPatches = Object.keys(patches).length > 0;
+  if (!hasPriceOverrides && !hasAvailabilityOverrides && !hasPatches) return productList;
 
   return productList.map((product) => {
     let changed = false;
@@ -109,8 +129,15 @@ export function applyPriceOverrides(
       changed = true;
     }
 
+    let image = product.image;
+    const patch = patches[product.sku];
+    if (patch?.image) {
+      image = patch.image;
+      changed = true;
+    }
+
     if (!changed) return product;
-    return { ...product, presentations, status };
+    return { ...product, presentations, status, image };
   });
 }
 

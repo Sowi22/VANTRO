@@ -71,13 +71,25 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
       <div className="relative">
         {product.image ? (
           <div className="relative aspect-square w-full overflow-hidden rounded-[20px] bg-surface">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 45vw, 220px"
-              className="object-cover"
-            />
+            {product.image.startsWith("http") ? (
+              // Foto pegada desde la hoja de precios (imgur, Drive, etc): dominio
+              // no conocido de antemano, así que se muestra sin optimizar en vez
+              // de exigir configurar next/image para cada dominio posible.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={product.image}
+                alt={product.name}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                sizes="(max-width: 640px) 45vw, 220px"
+                className="object-cover"
+              />
+            )}
           </div>
         ) : (
           <MediaPlaceholder category={product.proteinCategory} className="aspect-square w-full" />

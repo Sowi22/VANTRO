@@ -15,9 +15,11 @@ export function SearchBar({ autoFocus, onResultSelected }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const priceOverrides = usePricesStore((s) => s.overrides);
   const availability = usePricesStore((s) => s.availability);
+  const patches = usePricesStore((s) => s.patches);
+  const newProducts = usePricesStore((s) => s.newProducts);
   const results = useMemo(
-    () => applyPriceOverrides(searchProducts(query), priceOverrides, availability),
-    [query, priceOverrides, availability],
+    () => applyPriceOverrides(searchProducts(query, newProducts), priceOverrides, availability, patches),
+    [query, newProducts, priceOverrides, availability, patches],
   );
 
   return (

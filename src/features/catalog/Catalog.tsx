@@ -19,7 +19,14 @@ export function Catalog() {
   const clearFilter = useUIStore((s) => s.clearFilter);
   const priceOverrides = usePricesStore((s) => s.overrides);
   const availability = usePricesStore((s) => s.availability);
-  const products = applyPriceOverrides(getProductsForFilter(activeFilter), priceOverrides, availability);
+  const patches = usePricesStore((s) => s.patches);
+  const newProducts = usePricesStore((s) => s.newProducts);
+  const products = applyPriceOverrides(
+    getProductsForFilter(activeFilter, newProducts),
+    priceOverrides,
+    availability,
+    patches,
+  );
 
   const title =
     activeFilter.type === "all"

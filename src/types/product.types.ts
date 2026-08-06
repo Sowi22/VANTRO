@@ -58,10 +58,11 @@ export interface Product {
   applications: string[];
   relatedSkus: string[];
   /**
-   * Ruta de la fotografía real del producto (ej. "/products/carne-molida-premium.jpg"),
-   * relativa a `public/`. Opcional: mientras no exista, la tarjeta sigue
-   * mostrando el ícono de relleno por categoría (`MediaPlaceholder`), tal
-   * como todos los productos actuales.
+   * Fotografía real del producto: una ruta local ("/products/archivo.jpg",
+   * dentro de `public/`) o una URL completa (ej. un link de imgur/Drive
+   * pegado en la columna `imagen` de la hoja de precios). Opcional: mientras
+   * no exista, la tarjeta muestra el ícono de relleno por categoría
+   * (`MediaPlaceholder`), tal como todos los productos actuales.
    */
   image?: string;
 }
@@ -89,3 +90,11 @@ export type PriceOverrideMap = Record<string, PriceOverrideEntry>;
  * `data/products.ts` esté definido como agotado. Clave: `sku`.
  */
 export type AvailabilityOverrideMap = Record<string, boolean>;
+
+/**
+ * Parche por SKU para campos de producto que no son de precio (hoy: solo
+ * la foto, columna `imagen` de la hoja). Se aplica tanto a productos ya
+ * existentes en `data/products.ts` como a productos nuevos creados desde
+ * la hoja. Clave: `sku`.
+ */
+export type ProductPatchMap = Record<string, { image?: string }>;

@@ -1,23 +1,33 @@
 import { create } from "zustand";
-import type { AvailabilityOverrideMap, PriceOverrideMap } from "@/types/product.types";
+import type {
+  AvailabilityOverrideMap,
+  PriceOverrideMap,
+  Product,
+  ProductPatchMap,
+} from "@/types/product.types";
 
 interface PricesState {
   overrides: PriceOverrideMap;
   availability: AvailabilityOverrideMap;
+  patches: ProductPatchMap;
+  newProducts: Product[];
   status: "idle" | "loading" | "ready" | "error";
   lastSyncedAt: number | null;
   fetchPrices: () => Promise<void>;
 }
 
 /**
- * Precios y disponibilidad sincronizados desde `/api/prices` (Google Sheet).
- * No se persiste en localStorage a propósito: en cada visita se pide la
- * versión más reciente. Si la sincronización falla, todo queda vacío y el
- * catálogo simplemente usa los datos de `data/products.ts`.
+ * Precios, disponibilidad, fotos y productos nuevos sincronizados desde
+ * `/api/prices` (Google Sheet). No se persiste en localStorage a propósito:
+ * en cada visita se pide la versión más reciente. Si la sincronización
+ * falla, todo queda vacío y el catálogo simplemente usa los datos de
+ * `data/products.ts`.
  */
 export const usePricesStore = create<PricesState>((set) => ({
   overrides: {},
   availability: {},
+  patches: {},
+  newProducts: [],
   status: "idle",
   lastSyncedAt: null,
 
@@ -28,10 +38,14 @@ export const usePricesStore = create<PricesState>((set) => ({
       const data = (await res.json()) as {
         overrides?: PriceOverrideMap;
         availability?: AvailabilityOverrideMap;
+        patches?: ProductPatchMap;
+        newProducts?: Product[];
       };
       set({
         overrides: data.overrides ?? {},
         availability: data.availability ?? {},
+        patches: data.patches ?? {},
+        newProducts: data.newProducts ?? [],
         status: "ready",
         lastSyncedAt: Date.now(),
       });
