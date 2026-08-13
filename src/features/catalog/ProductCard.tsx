@@ -43,10 +43,14 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
 
   const isAvailable = product.status === "activo" && presentation.price != null;
 
-  const handleAdd = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (!isAvailable) return;
+  const launchFly = (event: React.MouseEvent<HTMLButtonElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     useFlyToCartStore.getState().launch({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+  };
+
+  const handleAdd = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!isAvailable) return;
+    launchFly(event);
     addItem({
       sku: product.sku,
       name: product.name,
@@ -164,9 +168,10 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
             <button
               type="button"
               aria-label="Aumentar cantidad"
-              onClick={() =>
-                setQuantity(product.sku, presentation.label, quantityInCart + 1)
-              }
+              onClick={(event) => {
+                launchFly(event);
+                setQuantity(product.sku, presentation.label, quantityInCart + 1);
+              }}
               className="flex h-9 w-9 items-center justify-center rounded-full text-white transition hover:bg-white/10 active:scale-95"
             >
               <Plus className="h-4 w-4" />
