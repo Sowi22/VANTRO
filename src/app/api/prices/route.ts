@@ -6,6 +6,7 @@ import type {
   AvailabilityOverrideMap,
   BusinessSegment,
   PresentationUnit,
+  Presentation,
   PriceOverrideMap,
   Product,
   ProductPatchMap,
@@ -13,10 +14,19 @@ import type {
 } from "@/types/product.types";
 
 /**
- * Sincroniza precios, disponibilidad, fotos, renombrados y productos nuevos
- * desde una hoja de Google Sheets publicada como CSV (Archivo → Compartir →
- * Publicar en la Web → CSV, o compartida como "cualquiera con el enlace" +
- * URL `/export?format=csv`).
+ * Sincroniza precios, presentaciones, disponibilidad, fotos, renombrados y
+ * productos nuevos desde una hoja de Google Sheets publicada como CSV
+ * (Archivo → Compartir → Publicar en la Web → CSV, o compartida como
+ * "cualquiera con el enlace" + URL `/export?format=csv`).
+ *
+ * Cada fila es UNA presentación. Varias filas con el mismo `sku` forman UN
+ * solo producto con varias presentaciones (500 g / 1 kg / etc). Esto aplica
+ * igual para un producto que ya existe en `data/products.ts` que para uno
+ * completamente nuevo: en ambos casos, las presentaciones que aparecen en
+ * la hoja para ese sku REEMPLAZAN por completo las presentaciones del
+ * producto — no se combinan con las que tenía el código. Si en el código
+ * "Atravesado" tenía 500 g/1 kg/2 kg/Granel y en la hoja solo pones una
+ * fila de 500 g, en la página solo se ve esa.
  *
  * Columnas:
  * - sku, cantidad, precio, precio_anterior, disponible → como antes.
@@ -107,6 +117,17 @@ interface SheetRow {
   unit?: PresentationUnit;
 }
 
+function buildPresentations(rows: SheetRow[]): Presentation[] {
+  return rows
+    .filter((r) => r.label)
+    .map((r) => ({
+      label: r.label,
+      weightGrams: parseWeightGrams(r.label),
+      price: r.price ?? null,
+      compareAtPrice: r.compareAtPrice,
+    }));
+}
+
 /** Ensambla un producto completamente nuevo a partir de sus filas en la hoja. */
 function buildNewProduct(sku: string, rows: SheetRow[]): Product {
   const name = rows.find((r) => r.name)?.name ?? sku;
@@ -123,15 +144,7 @@ function buildNewProduct(sku: string, rows: SheetRow[]): Product {
   const forcedUnavailable = rows.some((r) => r.available === false);
   const forcedAvailable = rows.some((r) => r.available === true);
 
-  const presentations = rows
-    .filter((r) => r.label)
-    .map((r) => ({
-      label: r.label,
-      weightGrams: parseWeightGrams(r.label),
-      price: r.price ?? null,
-      compareAtPrice: r.compareAtPrice,
-    }));
-
+  const presentations = buildPresentations(rows);
   const hasRealPrice = presentations.some((p) => p.price != null);
   const status = forcedUnavailable ? "agotado" : hasRealPrice || forcedAvailable ? "activo" : "pendiente";
 
@@ -200,12 +213,9 @@ export async function GET() {
     }
 
     const knownSkus = new Set(baseProducts.map((p) => p.sku));
-    const overrides: PriceOverrideMap = {};
-    const availability: AvailabilityOverrideMap = {};
-    const patches: ProductPatchMap = {};
     const hiddenSkus = new Set<string>();
     const mentionedSkus = new Set<string>();
-    const newProductRows = new Map<string, SheetRow[]>();
+    const skuRows = new Map<string, SheetRow[]>();
 
     for (const row of rows.slice(1)) {
       const sku = row[skuIdx]?.trim();
@@ -227,44 +237,50 @@ export async function GET() {
 
       if (sheetRow.available === "hidden") hiddenSkus.add(sku);
 
+      const list = skuRows.get(sku) ?? [];
+      list.push(sheetRow);
+      skuRows.set(sku, list);
+    }
+
+    const availability: AvailabilityOverrideMap = {};
+    const patches: ProductPatchMap = {};
+    const newProducts: Product[] = [];
+
+    for (const [sku, sheetRows] of skuRows) {
+      if (hiddenSkus.has(sku)) continue;
+
       if (!knownSkus.has(sku)) {
-        // SKU que no existe en el código: se acumula para construir un producto nuevo.
-        const list = newProductRows.get(sku) ?? [];
-        list.push(sheetRow);
-        newProductRows.set(sku, list);
+        newProducts.push(buildNewProduct(sku, sheetRows));
         continue;
       }
 
-      // SKU conocido: precio, disponibilidad y datos generales se aplican
-      // como parche sobre el producto existente (puede reemplazar hasta el
-      // nombre y la categoría, para reutilizar un sku viejo en un corte
-      // distinto sin tocar código).
-      if (label && sheetRow.price !== undefined) {
-        overrides[`${sku}__${label}`] = { price: sheetRow.price, compareAtPrice: sheetRow.compareAtPrice };
-      }
-      if (sheetRow.available === false) {
-        availability[sku] = false;
-      } else if (sheetRow.available === true && availability[sku] !== false) {
-        availability[sku] = true;
-      }
-      if (sheetRow.image || sheetRow.name || sheetRow.category || sheetRow.segments || sheetRow.unit) {
-        patches[sku] = {
-          ...patches[sku],
-          image: sheetRow.image ?? patches[sku]?.image,
-          name: sheetRow.name ?? patches[sku]?.name,
-          proteinCategory: sheetRow.category ?? patches[sku]?.proteinCategory,
-          businessSegments: sheetRow.segments ?? patches[sku]?.businessSegments,
-          unit: sheetRow.unit ?? patches[sku]?.unit,
-        };
-      }
+      // SKU conocido: la hoja manda sobre presentaciones, precio,
+      // disponibilidad y datos generales — puede reemplazar hasta el
+      // nombre, la categoría y las presentaciones, para reutilizar un sku
+      // viejo en un corte distinto sin tocar código.
+      const forcedUnavailable = sheetRows.some((r) => r.available === false);
+      const forcedAvailable = sheetRows.some((r) => r.available === true);
+      if (forcedUnavailable) availability[sku] = false;
+      else if (forcedAvailable) availability[sku] = true;
+
+      const name = sheetRows.find((r) => r.name)?.name;
+      const image = sheetRows.find((r) => r.image)?.image;
+      const category = sheetRows.find((r) => r.category)?.category;
+      const segments = sheetRows.find((r) => r.segments)?.segments;
+      const unit = sheetRows.find((r) => r.unit)?.unit;
+
+      patches[sku] = {
+        presentations: buildPresentations(sheetRows),
+        image,
+        name,
+        proteinCategory: category,
+        businessSegments: segments,
+        unit,
+      };
     }
 
-    const newProducts: Product[] = Array.from(newProductRows.entries())
-      .filter(([sku]) => !hiddenSkus.has(sku))
-      .map(([sku, sheetRows]) => buildNewProduct(sku, sheetRows));
-
     return NextResponse.json({
-      overrides,
+      overrides: {} as PriceOverrideMap,
       availability,
       patches,
       newProducts,

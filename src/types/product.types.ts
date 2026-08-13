@@ -105,5 +105,13 @@ export interface ProductPatch {
   proteinCategory?: ProteinCategory;
   businessSegments?: BusinessSegment[];
   unit?: PresentationUnit;
+  /**
+   * Cuando está presente, REEMPLAZA por completo las presentaciones del
+   * producto (no se combina con las del código). Así, si la hoja solo trae
+   * "500 g" para un producto que en el código tenía 500 g/1 kg/2 kg/Granel,
+   * en la página solo se muestra "500 g" — las demás dejan de existir hasta
+   * que se agreguen de vuelta en la hoja.
+   */
+  presentations?: Presentation[];
 }
 export type ProductPatchMap = Record<string, ProductPatch>;

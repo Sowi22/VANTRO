@@ -81,6 +81,11 @@ function overrideKey(sku: string, presentationLabel: string): string {
  *   precio ni su estado en el código.
  * - Si la hoja marca `disponible = Sí`, reactiva un producto aunque en
  *   `data/products.ts` esté definido como agotado.
+ * - Si la hoja trae presentaciones para un SKU, esas presentaciones
+ *   REEMPLAZAN por completo las del producto (no se combinan): si el
+ *   código tenía 500 g/1 kg/2 kg/Granel y la hoja solo trae 500 g, en la
+ *   página solo se ve esa — así, quitar una presentación es quitar la fila
+ *   correspondiente en la hoja.
  * - Si la hoja trae `imagen`, `producto`, `categoria`, `negocios` o
  *   `tipo_venta`, reemplaza esos campos del producto — así se puede
  *   reutilizar el sku de un producto viejo para un corte completamente
@@ -122,17 +127,27 @@ export function applyPriceOverrides(
     .filter((product) => !hidden.has(product.sku) && (!visible || visible.has(product.sku)))
     .map((product) => {
       let changed = false;
+      const patch = patches[product.sku];
 
-      const presentations = product.presentations.map((presentation) => {
-        const override = overrides[overrideKey(product.sku, presentation.label)];
-        if (!override) return presentation;
+      // Si la hoja trae presentaciones para este sku, reemplazan por
+      // completo las del producto. Si no, se mantiene el comportamiento
+      // anterior de parchar precio por presentación (por compatibilidad).
+      let presentations = product.presentations;
+      if (patch?.presentations) {
+        presentations = patch.presentations;
         changed = true;
-        return {
-          ...presentation,
-          price: override.price,
-          compareAtPrice: override.compareAtPrice,
-        };
-      });
+      } else {
+        presentations = product.presentations.map((presentation) => {
+          const override = overrides[overrideKey(product.sku, presentation.label)];
+          if (!override) return presentation;
+          changed = true;
+          return {
+            ...presentation,
+            price: override.price,
+            compareAtPrice: override.compareAtPrice,
+          };
+        });
+      }
 
       let status = product.status;
       if (changed) {
@@ -151,7 +166,6 @@ export function applyPriceOverrides(
         changed = true;
       }
 
-      const patch = patches[product.sku];
       let { name, proteinCategory, businessSegments, unit, image } = product;
       if (patch) {
         if (patch.image) image = patch.image;
