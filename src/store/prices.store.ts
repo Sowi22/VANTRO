@@ -11,23 +11,25 @@ interface PricesState {
   availability: AvailabilityOverrideMap;
   patches: ProductPatchMap;
   newProducts: Product[];
+  hiddenSkus: string[];
   status: "idle" | "loading" | "ready" | "error";
   lastSyncedAt: number | null;
   fetchPrices: () => Promise<void>;
 }
 
 /**
- * Precios, disponibilidad, fotos y productos nuevos sincronizados desde
- * `/api/prices` (Google Sheet). No se persiste en localStorage a propósito:
- * en cada visita se pide la versión más reciente. Si la sincronización
- * falla, todo queda vacío y el catálogo simplemente usa los datos de
- * `data/products.ts`.
+ * Precios, disponibilidad, fotos, renombrados y productos nuevos
+ * sincronizados desde `/api/prices` (Google Sheet). No se persiste en
+ * localStorage a propósito: en cada visita se pide la versión más reciente.
+ * Si la sincronización falla, todo queda vacío y el catálogo simplemente
+ * usa los datos de `data/products.ts`.
  */
 export const usePricesStore = create<PricesState>((set) => ({
   overrides: {},
   availability: {},
   patches: {},
   newProducts: [],
+  hiddenSkus: [],
   status: "idle",
   lastSyncedAt: null,
 
@@ -40,12 +42,14 @@ export const usePricesStore = create<PricesState>((set) => ({
         availability?: AvailabilityOverrideMap;
         patches?: ProductPatchMap;
         newProducts?: Product[];
+        hiddenSkus?: string[];
       };
       set({
         overrides: data.overrides ?? {},
         availability: data.availability ?? {},
         patches: data.patches ?? {},
         newProducts: data.newProducts ?? [],
+        hiddenSkus: data.hiddenSkus ?? [],
         status: "ready",
         lastSyncedAt: Date.now(),
       });

@@ -92,9 +92,18 @@ export type PriceOverrideMap = Record<string, PriceOverrideEntry>;
 export type AvailabilityOverrideMap = Record<string, boolean>;
 
 /**
- * Parche por SKU para campos de producto que no son de precio (hoy: solo
- * la foto, columna `imagen` de la hoja). Se aplica tanto a productos ya
- * existentes en `data/products.ts` como a productos nuevos creados desde
- * la hoja. Clave: `sku`.
+ * Parche por SKU para campos de producto que no son de precio/disponibilidad
+ * (foto, nombre, categoría, negocios, tipo de venta). Se aplica sobre
+ * productos ya existentes en `data/products.ts`: permite, por ejemplo,
+ * reutilizar un SKU viejo para un corte completamente distinto sin tocar
+ * código — la hoja manda sobre el nombre y la categoría, no solo el precio.
+ * Clave: `sku`.
  */
-export type ProductPatchMap = Record<string, { image?: string }>;
+export interface ProductPatch {
+  image?: string;
+  name?: string;
+  proteinCategory?: ProteinCategory;
+  businessSegments?: BusinessSegment[];
+  unit?: PresentationUnit;
+}
+export type ProductPatchMap = Record<string, ProductPatch>;

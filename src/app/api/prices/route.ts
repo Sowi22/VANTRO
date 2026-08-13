@@ -13,18 +13,20 @@ import type {
 } from "@/types/product.types";
 
 /**
- * Sincroniza precios, disponibilidad, fotos y productos nuevos desde una
- * hoja de Google Sheets publicada como CSV (Archivo → Compartir → Publicar
- * en la Web → CSV, o compartida como "cualquiera con el enlace" + URL
- * `/export?format=csv`).
+ * Sincroniza precios, disponibilidad, fotos, renombrados y productos nuevos
+ * desde una hoja de Google Sheets publicada como CSV (Archivo → Compartir →
+ * Publicar en la Web → CSV, o compartida como "cualquiera con el enlace" +
+ * URL `/export?format=csv`).
  *
  * Columnas:
  * - sku, cantidad, precio, precio_anterior, disponible → como antes.
- * - imagen (opcional): URL de la foto (imgur, Google Drive, etc). Aplica a
- *   productos existentes y nuevos.
- * - categoria, negocios, tipo_venta (opcionales): solo se usan cuando el
- *   `sku` de la fila NO existe en `data/products.ts` — en ese caso, la fila
- *   define un producto completamente nuevo.
+ * - disponible admite además "eliminar" / "oculto" / "ocultar" / "borrar":
+ *   ese producto desaparece por completo del catálogo (no solo "Agotado").
+ * - imagen, producto, categoria, negocios, tipo_venta (opcionales): se
+ *   aplican como PARCHE tanto a productos existentes en `data/products.ts`
+ *   (permite reutilizar un sku viejo para un corte distinto: cambia nombre,
+ *   categoría, negocios y foto sin tocar código) como a productos nuevos
+ *   (sku que no existía todavía).
  *
  * Si `VANTRO_PRICES_SHEET_CSV_URL` no está configurada, o la hoja no
  * responde, devolvemos todo vacío — el catálogo sigue funcionando con los
@@ -49,11 +51,15 @@ function parseWeightGrams(label: string): number | undefined {
 
 const NOT_AVAILABLE_VALUES = new Set(["no", "n", "false", "0", "agotado"]);
 const AVAILABLE_VALUES = new Set(["si", "sí", "s", "yes", "true", "1", "disponible"]);
+const HIDDEN_VALUES = new Set(["eliminar", "oculto", "ocultar", "borrar", "eliminado", "hide", "hidden"]);
+
+type Availability = "hidden" | boolean | undefined;
 
 /** `undefined` = la celda está vacía o no reconocida: no forzamos ningún cambio. */
-function parseAvailability(raw: string | undefined): boolean | undefined {
+function parseAvailability(raw: string | undefined): Availability {
   if (!raw) return undefined;
   const normalized = raw.trim().toLowerCase();
+  if (HIDDEN_VALUES.has(normalized)) return "hidden";
   if (NOT_AVAILABLE_VALUES.has(normalized)) return false;
   if (AVAILABLE_VALUES.has(normalized)) return true;
   return undefined;
@@ -86,7 +92,7 @@ interface SheetRow {
   label: string;
   price?: number;
   compareAtPrice?: number;
-  available?: boolean;
+  available?: Availability;
   image?: string;
   category?: ProteinCategory;
   segments?: BusinessSegment[];
@@ -147,6 +153,7 @@ function emptyResponse(source: string) {
     availability: {} as AvailabilityOverrideMap,
     patches: {} as ProductPatchMap,
     newProducts: [] as Product[],
+    hiddenSkus: [] as string[],
     source,
   });
 }
@@ -187,6 +194,7 @@ export async function GET() {
     const overrides: PriceOverrideMap = {};
     const availability: AvailabilityOverrideMap = {};
     const patches: ProductPatchMap = {};
+    const hiddenSkus = new Set<string>();
     const newProductRows = new Map<string, SheetRow[]>();
 
     for (const row of rows.slice(1)) {
@@ -206,6 +214,8 @@ export async function GET() {
         unit: unitIdx !== -1 ? parseUnit(row[unitIdx]) : undefined,
       };
 
+      if (sheetRow.available === "hidden") hiddenSkus.add(sku);
+
       if (!knownSkus.has(sku)) {
         // SKU que no existe en el código: se acumula para construir un producto nuevo.
         const list = newProductRows.get(sku) ?? [];
@@ -214,7 +224,10 @@ export async function GET() {
         continue;
       }
 
-      // SKU conocido: precio/disponibilidad/imagen se aplican como parche sobre el producto existente.
+      // SKU conocido: precio, disponibilidad y datos generales se aplican
+      // como parche sobre el producto existente (puede reemplazar hasta el
+      // nombre y la categoría, para reutilizar un sku viejo en un corte
+      // distinto sin tocar código).
       if (label && sheetRow.price !== undefined) {
         overrides[`${sku}__${label}`] = { price: sheetRow.price, compareAtPrice: sheetRow.compareAtPrice };
       }
@@ -223,16 +236,30 @@ export async function GET() {
       } else if (sheetRow.available === true && availability[sku] !== false) {
         availability[sku] = true;
       }
-      if (sheetRow.image) {
-        patches[sku] = { ...patches[sku], image: sheetRow.image };
+      if (sheetRow.image || sheetRow.name || sheetRow.category || sheetRow.segments || sheetRow.unit) {
+        patches[sku] = {
+          ...patches[sku],
+          image: sheetRow.image ?? patches[sku]?.image,
+          name: sheetRow.name ?? patches[sku]?.name,
+          proteinCategory: sheetRow.category ?? patches[sku]?.proteinCategory,
+          businessSegments: sheetRow.segments ?? patches[sku]?.businessSegments,
+          unit: sheetRow.unit ?? patches[sku]?.unit,
+        };
       }
     }
 
-    const newProducts: Product[] = Array.from(newProductRows.entries()).map(([sku, sheetRows]) =>
-      buildNewProduct(sku, sheetRows),
-    );
+    const newProducts: Product[] = Array.from(newProductRows.entries())
+      .filter(([sku]) => !hiddenSkus.has(sku))
+      .map(([sku, sheetRows]) => buildNewProduct(sku, sheetRows));
 
-    return NextResponse.json({ overrides, availability, patches, newProducts, source: "sheet" });
+    return NextResponse.json({
+      overrides,
+      availability,
+      patches,
+      newProducts,
+      hiddenSkus: Array.from(hiddenSkus),
+      source: "sheet",
+    });
   } catch (error) {
     console.error("No se pudo sincronizar la hoja de precios de VANTRO:", error);
     return emptyResponse("error");

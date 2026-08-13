@@ -81,64 +81,81 @@ function overrideKey(sku: string, presentationLabel: string): string {
  *   precio ni su estado en el código.
  * - Si la hoja marca `disponible = Sí`, reactiva un producto aunque en
  *   `data/products.ts` esté definido como agotado.
- * - Si la hoja trae una `imagen`, reemplaza el ícono de relleno por esa
- *   foto (funciona igual para productos del código y productos nuevos).
+ * - Si la hoja trae `imagen`, `producto`, `categoria`, `negocios` o
+ *   `tipo_venta`, reemplaza esos campos del producto — así se puede
+ *   reutilizar el sku de un producto viejo para un corte completamente
+ *   distinto sin tocar código (nombre, categoría y negocios incluidos).
+ * - Si `disponible` dice "eliminar"/"oculto"/"ocultar", el producto se
+ *   filtra por completo del catálogo (no solo "Agotado"); ver `hiddenSkus`.
  *
- * Así, publicar, quitar, reactivar o ponerle foto a un producto es editar
- * una celda en la hoja de cálculo — nunca tocar código ni volver a desplegar.
+ * Así, publicar, renombrar, quitar, reactivar u ocultar un producto es
+ * editar una celda en la hoja de cálculo — nunca tocar código ni volver a
+ * desplegar.
  */
 export function applyPriceOverrides(
   productList: Product[],
   overrides: PriceOverrideMap,
   availability: AvailabilityOverrideMap = {},
   patches: ProductPatchMap = {},
+  hiddenSkus: string[] = [],
 ): Product[] {
   const hasPriceOverrides = Object.keys(overrides).length > 0;
   const hasAvailabilityOverrides = Object.keys(availability).length > 0;
   const hasPatches = Object.keys(patches).length > 0;
-  if (!hasPriceOverrides && !hasAvailabilityOverrides && !hasPatches) return productList;
+  const hasHidden = hiddenSkus.length > 0;
+  if (!hasPriceOverrides && !hasAvailabilityOverrides && !hasPatches && !hasHidden) return productList;
 
-  return productList.map((product) => {
-    let changed = false;
+  const hidden = new Set(hiddenSkus);
 
-    const presentations = product.presentations.map((presentation) => {
-      const override = overrides[overrideKey(product.sku, presentation.label)];
-      if (!override) return presentation;
-      changed = true;
-      return {
-        ...presentation,
-        price: override.price,
-        compareAtPrice: override.compareAtPrice,
-      };
-    });
+  return productList
+    .filter((product) => !hidden.has(product.sku))
+    .map((product) => {
+      let changed = false;
 
-    let status = product.status;
-    if (changed) {
-      const hasRealPrice = presentations.some((p) => p.price != null);
-      if ((status === "pendiente" || status === "proximamente") && hasRealPrice) {
-        status = "activo";
+      const presentations = product.presentations.map((presentation) => {
+        const override = overrides[overrideKey(product.sku, presentation.label)];
+        if (!override) return presentation;
+        changed = true;
+        return {
+          ...presentation,
+          price: override.price,
+          compareAtPrice: override.compareAtPrice,
+        };
+      });
+
+      let status = product.status;
+      if (changed) {
+        const hasRealPrice = presentations.some((p) => p.price != null);
+        if ((status === "pendiente" || status === "proximamente") && hasRealPrice) {
+          status = "activo";
+        }
       }
-    }
 
-    const availabilityOverride = availability[product.sku];
-    if (availabilityOverride === false) {
-      status = "agotado";
-      changed = true;
-    } else if (availabilityOverride === true && status === "agotado") {
-      status = "activo";
-      changed = true;
-    }
+      const availabilityOverride = availability[product.sku];
+      if (availabilityOverride === false) {
+        status = "agotado";
+        changed = true;
+      } else if (availabilityOverride === true && status === "agotado") {
+        status = "activo";
+        changed = true;
+      }
 
-    let image = product.image;
-    const patch = patches[product.sku];
-    if (patch?.image) {
-      image = patch.image;
-      changed = true;
-    }
+      const patch = patches[product.sku];
+      let { name, proteinCategory, businessSegments, unit, image } = product;
+      if (patch) {
+        if (patch.image) image = patch.image;
+        if (patch.name) name = patch.name;
+        if (patch.proteinCategory) proteinCategory = patch.proteinCategory;
+        if (patch.businessSegments) businessSegments = patch.businessSegments;
+        if (patch.unit) unit = patch.unit;
+        if (patch.image || patch.name || patch.proteinCategory || patch.businessSegments || patch.unit) {
+          changed = true;
+        }
+      }
 
-    if (!changed) return product;
-    return { ...product, presentations, status, image };
-  });
+      if (!changed) return product;
+      return { ...product, presentations, status, image, name, proteinCategory, businessSegments, unit };
+    });
 }
 
 export function getRelatedProducts(product: Product): Product[] {
