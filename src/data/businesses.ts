@@ -4,32 +4,32 @@ import type { BusinessType, ProteinCategoryOption } from "@/types/business.types
 export const businessTypes: BusinessType[] = [
   {
     id: "comida-rapida",
-    label: "Tengo una comida rápida",
+    label: "Comida rápida",
     icon: "Beef",
     description:
       "Ideal para negocios que preparan perros calientes, salchipapas, arepas, chuzos y otras comidas rápidas.",
   },
   {
     id: "asadero",
-    label: "Tengo un asadero",
+    label: "Asadero",
     icon: "Flame",
     description: "Productos ideales para parrillas, asados y restaurantes especializados en carnes.",
   },
   {
     id: "restaurante",
-    label: "Tengo un restaurante",
+    label: "Restaurante",
     icon: "ChefHat",
     description: "Productos para restaurantes, almuerzos ejecutivos, hoteles y cocinas de producción.",
   },
   {
     id: "hogar",
-    label: "Compro para mi hogar",
+    label: "Hogar",
     icon: "Home",
     description: "Compra la misma calidad que utilizan muchos negocios gastronómicos y recíbela en tu hogar.",
   },
   {
     id: "fitness",
-    label: "Quiero productos fitness",
+    label: "Fitness",
     icon: "Dumbbell",
     description: "Proteínas seleccionadas para una alimentación rica en proteína y baja en grasa.",
   },
