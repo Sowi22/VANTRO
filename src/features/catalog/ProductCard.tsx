@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Minus, Plus } from "lucide-react";
 import { motion } from "motion/react";
@@ -30,6 +30,11 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
     return firstWithPrice >= 0 ? firstWithPrice : 0;
   });
   const [justAdded, setJustAdded] = useState(false);
+  // Si el link pegado en la hoja de precios no carga (formato incorrecto,
+  // imagen borrada, etc.), volvemos al ícono de relleno en vez de mostrar
+  // una imagen rota. Se reinicia si el producto cambia de foto.
+  const [imgError, setImgError] = useState(false);
+  useEffect(() => setImgError(false), [product.image]);
 
   const presentation = product.presentations[presentationIndex];
   const addItem = useCartStore((s) => s.addItem);
@@ -76,7 +81,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
       className="flex flex-col gap-3 rounded-[20px] border border-white/[0.06] bg-surface p-3"
     >
       <div className="relative">
-        {product.image ? (
+        {product.image && !imgError ? (
           <div className="relative aspect-square w-full overflow-hidden rounded-[20px] bg-surface">
             {product.image.startsWith("http") ? (
               // Foto pegada desde la hoja de precios (imgur, Drive, etc): dominio
@@ -86,6 +91,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
               <img
                 src={product.image}
                 alt={product.name}
+                onError={() => setImgError(true)}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             ) : (
@@ -94,6 +100,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 45vw, 220px"
+                onError={() => setImgError(true)}
                 className="object-cover"
               />
             )}
