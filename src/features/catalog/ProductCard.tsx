@@ -10,6 +10,7 @@ import { MediaPlaceholder } from "@/components/shared/MediaPlaceholder";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cart.store";
+import { useFlyToCartStore } from "@/store/fly-to-cart.store";
 import type { Product } from "@/types/product.types";
 
 const statusMessage: Record<string, string> = {
@@ -42,8 +43,10 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
 
   const isAvailable = product.status === "activo" && presentation.price != null;
 
-  const handleAdd = () => {
+  const handleAdd = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!isAvailable) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    useFlyToCartStore.getState().launch({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
     addItem({
       sku: product.sku,
       name: product.name,

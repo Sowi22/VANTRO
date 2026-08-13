@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/features/cart/CartDrawer";
 import { MobileCartBar } from "@/components/shared/MobileCartBar";
 import { PriceSync } from "@/components/shared/PriceSync";
+import { FlyToCartLayer } from "@/components/shared/FlyToCartLayer";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -39,6 +40,7 @@ export default function RootLayout({
         <CartDrawer />
         <MobileCartBar />
         <PriceSync />
+        <FlyToCartLayer />
       </body>
     </html>
   );

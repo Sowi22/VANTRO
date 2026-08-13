@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { motion } from "motion/react";
 import { Menu, Search, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cart.store";
@@ -63,6 +64,7 @@ export function Header() {
 
           <button
             type="button"
+            id="cart-icon-target"
             onClick={openCart}
             aria-label="Ver mi pedido"
             className="relative flex h-11 items-center gap-2 rounded-full px-3 text-white transition hover:bg-white/5 active:scale-95"
@@ -70,9 +72,15 @@ export function Header() {
             <ShoppingBag className="h-5 w-5" />
             <span className="hidden text-sm sm:inline">Mi pedido</span>
             {totalItems > 0 ? (
-              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-white">
+              <motion.span
+                key={totalItems}
+                initial={{ scale: 0.4 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-white"
+              >
                 {totalItems}
-              </span>
+              </motion.span>
             ) : null}
           </button>
         </div>

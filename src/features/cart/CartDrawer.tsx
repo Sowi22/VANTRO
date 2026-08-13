@@ -37,15 +37,19 @@ export function CartDrawer() {
       phone: customerPhone,
     });
     const url = buildWhatsappUrl(message);
+
+    // window.open debe llamarse de forma SÍNCRONA, dentro del mismo gesto de
+    // clic del usuario — si se retrasa (setTimeout, await, etc.) muchos
+    // navegadores móviles lo bloquean silenciosamente como si fuera un
+    // pop-up no solicitado. Por eso se abre aquí mismo, antes de cualquier
+    // espera, y el pedido se vacía de inmediato: el cliente ya inició el
+    // envío, así que la próxima visita debe empezar desde cero.
+    window.open(url, "_blank", "noopener,noreferrer");
+    clearCart();
+
     window.setTimeout(() => {
-      const opened = window.open(url, "_blank", "noopener,noreferrer");
       setSending(false);
-      // Solo reiniciamos el pedido si el navegador realmente abrió WhatsApp.
-      // Si el popup fue bloqueado, conservamos el carrito para no perder el pedido del cliente.
-      if (opened) {
-        clearCart();
-        closeCart();
-      }
+      closeCart();
     }, 400);
   };
 
