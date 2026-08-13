@@ -28,9 +28,17 @@ import type {
  *   categoría, negocios y foto sin tocar código) como a productos nuevos
  *   (sku que no existía todavía).
  *
+ * `mentionedSkus`: todo sku que aparece en al menos una fila de la hoja
+ * (existente o nuevo). Cuando la hoja sincroniza con éxito, el catálogo
+ * completo pasa a ser SOLO lo que está en `mentionedSkus` — cualquier
+ * producto de `data/products.ts` que no tenga ninguna fila en la hoja se
+ * deja de mostrar. Así, la hoja se convierte en la lista completa y
+ * definitiva de productos, no solo en un parche de precios.
+ *
  * Si `VANTRO_PRICES_SHEET_CSV_URL` no está configurada, o la hoja no
- * responde, devolvemos todo vacío — el catálogo sigue funcionando con los
- * datos de `src/data/products.ts` exactamente como hoy.
+ * responde o está vacía, devolvemos todo vacío (incluido `mentionedSkus`)
+ * — el catálogo sigue funcionando con los datos completos de
+ * `src/data/products.ts`, sin restringir nada.
  */
 
 function parsePrice(raw: string | undefined): number | undefined {
@@ -154,6 +162,7 @@ function emptyResponse(source: string) {
     patches: {} as ProductPatchMap,
     newProducts: [] as Product[],
     hiddenSkus: [] as string[],
+    mentionedSkus: [] as string[],
     source,
   });
 }
@@ -195,12 +204,14 @@ export async function GET() {
     const availability: AvailabilityOverrideMap = {};
     const patches: ProductPatchMap = {};
     const hiddenSkus = new Set<string>();
+    const mentionedSkus = new Set<string>();
     const newProductRows = new Map<string, SheetRow[]>();
 
     for (const row of rows.slice(1)) {
       const sku = row[skuIdx]?.trim();
       const label = row[labelIdx]?.trim();
       if (!sku) continue;
+      mentionedSkus.add(sku);
 
       const sheetRow: SheetRow = {
         name: nameIdx !== -1 ? row[nameIdx]?.trim() || undefined : undefined,
@@ -258,6 +269,7 @@ export async function GET() {
       patches,
       newProducts,
       hiddenSkus: Array.from(hiddenSkus),
+      mentionedSkus: Array.from(mentionedSkus),
       source: "sheet",
     });
   } catch (error) {

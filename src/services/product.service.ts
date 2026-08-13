@@ -87,6 +87,12 @@ function overrideKey(sku: string, presentationLabel: string): string {
  *   distinto sin tocar código (nombre, categoría y negocios incluidos).
  * - Si `disponible` dice "eliminar"/"oculto"/"ocultar", el producto se
  *   filtra por completo del catálogo (no solo "Agotado"); ver `hiddenSkus`.
+ * - Si se pasa `visibleSkus` (la hoja sincronizó con éxito), el catálogo se
+ *   restringe a SOLO esos SKUs: cualquier producto de `data/products.ts`
+ *   que no tenga ninguna fila en la hoja deja de mostrarse. Si se omite
+ *   (`undefined`), no se restringe nada — así, si la hoja falla o está mal
+ *   configurada, el catálogo completo del código sigue visible en vez de
+ *   desaparecer por completo.
  *
  * Así, publicar, renombrar, quitar, reactivar u ocultar un producto es
  * editar una celda en la hoja de cálculo — nunca tocar código ni volver a
@@ -98,17 +104,22 @@ export function applyPriceOverrides(
   availability: AvailabilityOverrideMap = {},
   patches: ProductPatchMap = {},
   hiddenSkus: string[] = [],
+  visibleSkus?: string[],
 ): Product[] {
   const hasPriceOverrides = Object.keys(overrides).length > 0;
   const hasAvailabilityOverrides = Object.keys(availability).length > 0;
   const hasPatches = Object.keys(patches).length > 0;
   const hasHidden = hiddenSkus.length > 0;
-  if (!hasPriceOverrides && !hasAvailabilityOverrides && !hasPatches && !hasHidden) return productList;
+  const hasVisibleRestriction = visibleSkus !== undefined;
+  if (!hasPriceOverrides && !hasAvailabilityOverrides && !hasPatches && !hasHidden && !hasVisibleRestriction) {
+    return productList;
+  }
 
   const hidden = new Set(hiddenSkus);
+  const visible = visibleSkus ? new Set(visibleSkus) : null;
 
   return productList
-    .filter((product) => !hidden.has(product.sku))
+    .filter((product) => !hidden.has(product.sku) && (!visible || visible.has(product.sku)))
     .map((product) => {
       let changed = false;
 

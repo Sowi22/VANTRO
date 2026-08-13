@@ -22,12 +22,14 @@ export function Catalog() {
   const patches = usePricesStore((s) => s.patches);
   const newProducts = usePricesStore((s) => s.newProducts);
   const hiddenSkus = usePricesStore((s) => s.hiddenSkus);
+  const visibleSkus = usePricesStore((s) => s.visibleSkus);
   const products = applyPriceOverrides(
     getProductsForFilter(activeFilter, newProducts),
     priceOverrides,
     availability,
     patches,
     hiddenSkus,
+    visibleSkus,
   );
 
   const title =
