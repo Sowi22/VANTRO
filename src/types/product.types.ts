@@ -14,7 +14,7 @@ export type BusinessSegment =
   | "hogar"
   | "fitness";
 
-export type ProteinCategory = "res" | "pollo" | "cerdo" | "complemento" | "mixto";
+export type ProteinCategory = "res" | "pollo" | "cerdo" | "visceras" | "complemento" | "mixto";
 
 export type ProductStatus = "activo" | "agotado" | "proximamente" | "pendiente";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
-import { businessTypes } from "@/data/businesses";
+import { businessTypes, proteinCategories } from "@/data/businesses";
 import { applyPriceOverrides, getProductsForFilter } from "@/services/product.service";
 import { usePricesStore } from "@/store/prices.store";
 import { useUIStore } from "@/store/ui.store";
@@ -11,7 +11,8 @@ const titleByFilter = {
   all: "Catálogo completo",
   business: (value: string) =>
     businessTypes.find((b) => b.id === value)?.label ?? "Catálogo",
-  protein: (value: string) => `Categoría: ${value[0].toUpperCase()}${value.slice(1)}`,
+  protein: (value: string) =>
+    `Categoría: ${proteinCategories.find((p) => p.id === value)?.label ?? value}`,
 };
 
 export function Catalog() {

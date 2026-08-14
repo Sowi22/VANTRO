@@ -1,4 +1,4 @@
-import { Beef, Drumstick, ImageOff, Sandwich } from "lucide-react";
+import { Beef, Bone, Drumstick, ImageOff, Sandwich } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ProteinCategory } from "@/types/product.types";
 
@@ -12,6 +12,7 @@ const iconByCategory: Record<ProteinCategory, React.ComponentType<{ className?: 
   res: Beef,
   pollo: Drumstick,
   cerdo: Beef,
+  visceras: Bone,
   complemento: Sandwich,
   mixto: Beef,
 };

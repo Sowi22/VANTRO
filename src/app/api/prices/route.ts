@@ -83,9 +83,14 @@ function parseAvailability(raw: string | undefined): Availability {
   return undefined;
 }
 
-const VALID_CATEGORIES = new Set(["res", "pollo", "cerdo", "complemento", "mixto"]);
+/** Quita tildes ("Vísceras" -> "visceras") para que no importe si las escriben o no. */
+function stripAccents(value: string): string {
+  return value.normalize("NFD").replace(/\p{Diacritic}/gu, "");
+}
+
+const VALID_CATEGORIES = new Set(["res", "pollo", "cerdo", "visceras", "complemento", "mixto"]);
 function parseProteinCategory(raw: string | undefined): ProteinCategory | undefined {
-  const value = raw?.trim().toLowerCase();
+  const value = raw ? stripAccents(raw.trim().toLowerCase()) : undefined;
   return value && VALID_CATEGORIES.has(value) ? (value as ProteinCategory) : undefined;
 }
 
@@ -94,14 +99,14 @@ function parseBusinessSegments(raw: string | undefined): BusinessSegment[] | und
   if (!raw) return undefined;
   const parts = raw
     .split(/[,;]/)
-    .map((s) => s.trim().toLowerCase())
+    .map((s) => stripAccents(s.trim().toLowerCase()))
     .filter((s): s is BusinessSegment => VALID_SEGMENTS.has(s));
   return parts.length > 0 ? parts : undefined;
 }
 
 const VALID_UNITS = new Set(["peso", "unidad", "ambos"]);
 function parseUnit(raw: string | undefined): PresentationUnit | undefined {
-  const value = raw?.trim().toLowerCase();
+  const value = raw ? stripAccents(raw.trim().toLowerCase()) : undefined;
   return value && VALID_UNITS.has(value) ? (value as PresentationUnit) : undefined;
 }
 
