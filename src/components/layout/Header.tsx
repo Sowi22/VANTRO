@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
-import { Menu, Search, ShoppingBag } from "lucide-react";
+import { Search, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cart.store";
 import { useUIStore } from "@/store/ui.store";
@@ -14,7 +14,6 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const totalItems = useCartStore((s) => s.totalItems());
   const openCart = useUIStore((s) => s.openCart);
-  const toggleMenu = useUIStore((s) => s.toggleMenu);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -30,17 +29,11 @@ export function Header() {
         scrolled ? "bg-background/95 border-b border-white/[0.08]" : "bg-background/70",
       )}
     >
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-        <button
-          type="button"
-          onClick={toggleMenu}
-          aria-label="Abrir menú"
-          className="flex h-11 w-11 items-center justify-center rounded-full text-white transition hover:bg-white/5 active:scale-95"
+      <div className="relative mx-auto flex h-full max-w-7xl items-center justify-end gap-4 px-4 sm:px-6">
+        <a
+          href="#inicio"
+          className="absolute left-1/2 top-1/2 flex shrink-0 -translate-x-1/2 -translate-y-1/2 items-center"
         >
-          <Menu className="h-5 w-5" />
-        </button>
-
-        <a href="#inicio" className="flex shrink-0 items-center">
           <Image
             src="/brand/logo-full.png"
             alt="VANTRO"
