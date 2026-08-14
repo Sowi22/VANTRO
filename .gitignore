@@ -53,3 +53,8 @@ next-env.d.ts
 03 VANTRO CMS.docx
 04 PRODUCT DATABASE.docx
 05 VANTRO DEVELOPMENT BIBLE.docx
+
+# archivos de trabajo de diseño (logos fuente, artes destacados) — no se
+# usan directamente en el sitio, solo se procesan y el resultado final
+# queda en public/brand/
+/logos/
