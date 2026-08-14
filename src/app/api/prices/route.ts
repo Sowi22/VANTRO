@@ -105,6 +105,38 @@ function parseUnit(raw: string | undefined): PresentationUnit | undefined {
   return value && VALID_UNITS.has(value) ? (value as PresentationUnit) : undefined;
 }
 
+/**
+ * Si en la columna `imagen` pegan el link de una PÁGINA (ej. el álbum de
+ * imgur.com/a/xxxx, en vez del link directo a la foto) en lugar de la
+ * imagen directa, la resolvemos automáticamente: pedimos esa página y
+ * leemos su etiqueta `og:image`, que casi todo sitio (imgur, Drive con
+ * vista previa, etc.) usa para indicar cuál es la imagen "de portada". Así
+ * no hace falta que el cliente entienda la diferencia entre "compartir
+ * álbum" y "copiar dirección de la imagen".
+ */
+async function resolveImageUrl(url: string): Promise<string> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(url, { redirect: "follow", signal: controller.signal });
+    clearTimeout(timeout);
+
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.startsWith("image/")) return url;
+
+    if (contentType.includes("text/html")) {
+      const html = await res.text();
+      const match =
+        html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+      if (match?.[1]) return match[1];
+    }
+  } catch (error) {
+    console.warn("No se pudo resolver la imagen de la hoja:", url, error);
+  }
+  return url;
+}
+
 interface SheetRow {
   name?: string;
   label: string;
@@ -240,6 +272,26 @@ export async function GET() {
       const list = skuRows.get(sku) ?? [];
       list.push(sheetRow);
       skuRows.set(sku, list);
+    }
+
+    // Resuelve todos los links de imagen "de página" (álbumes, etc.) antes
+    // de armar productos, una sola vez por link distinto (no por fila).
+    const rawImageUrls = new Set<string>();
+    for (const sheetRows of skuRows.values()) {
+      for (const row of sheetRows) {
+        if (row.image) rawImageUrls.add(row.image);
+      }
+    }
+    if (rawImageUrls.size > 0) {
+      const resolvedEntries = await Promise.all(
+        Array.from(rawImageUrls).map(async (url) => [url, await resolveImageUrl(url)] as const),
+      );
+      const resolvedImages = new Map(resolvedEntries);
+      for (const sheetRows of skuRows.values()) {
+        for (const row of sheetRows) {
+          if (row.image) row.image = resolvedImages.get(row.image) ?? row.image;
+        }
+      }
     }
 
     const availability: AvailabilityOverrideMap = {};
