@@ -14,6 +14,8 @@ const businessLabels: Record<BusinessSegment, string> = {
 export interface OrderCustomer {
   name: string;
   phone: string;
+  address: string;
+  paymentMethod: string;
 }
 
 /**
@@ -34,10 +36,14 @@ export function buildOrderMessage(
 
   const customerName = customer?.name.trim();
   const customerPhone = customer?.phone.trim();
-  if (customerName || customerPhone) {
+  const customerAddress = customer?.address.trim();
+  const paymentMethod = customer?.paymentMethod.trim();
+  if (customerName || customerPhone || customerAddress || paymentMethod) {
     lines.push("", "Cliente:");
     if (customerName) lines.push(customerName);
     if (customerPhone) lines.push(customerPhone);
+    if (customerAddress) lines.push(`Dirección: ${customerAddress}`);
+    if (paymentMethod) lines.push(`Método de pago: ${paymentMethod}`);
   }
 
   if (businessType) {

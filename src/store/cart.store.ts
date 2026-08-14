@@ -7,12 +7,16 @@ interface CartState {
   observations: string;
   customerName: string;
   customerPhone: string;
+  customerAddress: string;
+  paymentMethod: string;
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
   removeItem: (sku: string, presentationLabel: string) => void;
   setQuantity: (sku: string, presentationLabel: string, quantity: number) => void;
   setObservations: (value: string) => void;
   setCustomerName: (value: string) => void;
   setCustomerPhone: (value: string) => void;
+  setCustomerAddress: (value: string) => void;
+  setPaymentMethod: (value: string) => void;
   clear: () => void;
   totalItems: () => number;
   totalEstimated: () => number;
@@ -29,6 +33,8 @@ export const useCartStore = create<CartState>()(
       observations: "",
       customerName: "",
       customerPhone: "",
+      customerAddress: "",
+      paymentMethod: "",
 
       addItem: (item, quantity = 1) => {
         set((state) => {
@@ -69,8 +75,18 @@ export const useCartStore = create<CartState>()(
       setObservations: (value) => set({ observations: value }),
       setCustomerName: (value) => set({ customerName: value }),
       setCustomerPhone: (value) => set({ customerPhone: value }),
+      setCustomerAddress: (value) => set({ customerAddress: value }),
+      setPaymentMethod: (value) => set({ paymentMethod: value }),
 
-      clear: () => set({ items: [], observations: "", customerName: "", customerPhone: "" }),
+      clear: () =>
+        set({
+          items: [],
+          observations: "",
+          customerName: "",
+          customerPhone: "",
+          customerAddress: "",
+          paymentMethod: "",
+        }),
 
       totalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
 
@@ -87,6 +103,8 @@ export const useCartStore = create<CartState>()(
         observations: state.observations,
         customerName: state.customerName,
         customerPhone: state.customerPhone,
+        customerAddress: state.customerAddress,
+        paymentMethod: state.paymentMethod,
       }),
     },
   ),

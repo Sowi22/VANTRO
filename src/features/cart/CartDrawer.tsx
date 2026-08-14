@@ -6,9 +6,12 @@ import { ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/currency";
 import { buildOrderMessage, buildWhatsappUrl } from "@/lib/whatsapp";
+import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cart.store";
 import { useUIStore } from "@/store/ui.store";
 import { CartLineItem } from "./CartLineItem";
+
+const paymentMethods = ["Efectivo contra entrega", "Transferencia (Nequi/Daviplata/Bancolombia)", "Tarjeta"];
 
 export function CartDrawer() {
   const isOpen = useUIStore((s) => s.isCartOpen);
@@ -22,19 +25,35 @@ export function CartDrawer() {
   const setCustomerName = useCartStore((s) => s.setCustomerName);
   const customerPhone = useCartStore((s) => s.customerPhone);
   const setCustomerPhone = useCartStore((s) => s.setCustomerPhone);
+  const customerAddress = useCartStore((s) => s.customerAddress);
+  const setCustomerAddress = useCartStore((s) => s.setCustomerAddress);
+  const paymentMethod = useCartStore((s) => s.paymentMethod);
+  const setPaymentMethod = useCartStore((s) => s.setPaymentMethod);
   const totalEstimated = useCartStore((s) => s.totalEstimated());
   const clearCart = useCartStore((s) => s.clear);
   const hasAllPrices = items.every((i) => i.unitPrice != null);
 
   const [sending, setSending] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
 
   const businessType = activeFilter.type === "business" ? activeFilter.value : null;
 
+  const nameMissing = showValidation && !customerName.trim();
+  const addressMissing = showValidation && !customerAddress.trim();
+  const paymentMissing = showValidation && !paymentMethod;
+
   const handleCheckout = () => {
+    if (!customerName.trim() || !customerAddress.trim() || !paymentMethod) {
+      setShowValidation(true);
+      return;
+    }
+
     setSending(true);
     const message = buildOrderMessage(items, businessType, observations, {
       name: customerName,
       phone: customerPhone,
+      address: customerAddress,
+      paymentMethod,
     });
     const url = buildWhatsappUrl(message);
 
@@ -46,6 +65,7 @@ export function CartDrawer() {
     // envío, así que la próxima visita debe empezar desde cero.
     window.open(url, "_blank", "noopener,noreferrer");
     clearCart();
+    setShowValidation(false);
 
     window.setTimeout(() => {
       setSending(false);
@@ -106,7 +126,7 @@ export function CartDrawer() {
                   <div className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">
-                        Tu nombre (opcional)
+                        Tu nombre
                       </label>
                       <input
                         type="text"
@@ -114,8 +134,16 @@ export function CartDrawer() {
                         onChange={(e) => setCustomerName(e.target.value)}
                         placeholder="¿Cómo te llamas?"
                         autoComplete="name"
-                        className="w-full rounded-2xl border border-white/10 bg-surface px-4 py-3 text-sm text-white placeholder:text-muted focus:border-primary focus:outline-none"
+                        className={cn(
+                          "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none",
+                          nameMissing
+                            ? "border-danger focus:border-danger"
+                            : "border-white/10 focus:border-primary",
+                        )}
                       />
+                      {nameMissing ? (
+                        <p className="mt-1 text-xs text-danger">Escribe tu nombre para continuar.</p>
+                      ) : null}
                     </div>
                     <div>
                       <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">
@@ -131,6 +159,57 @@ export function CartDrawer() {
                         className="w-full rounded-2xl border border-white/10 bg-surface px-4 py-3 text-sm text-white placeholder:text-muted focus:border-primary focus:outline-none"
                       />
                     </div>
+                  </div>
+
+                  <div className="pb-4">
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">
+                      Dirección de entrega
+                    </label>
+                    <input
+                      type="text"
+                      value={customerAddress}
+                      onChange={(e) => setCustomerAddress(e.target.value)}
+                      placeholder="Barrio, calle, número, referencia"
+                      autoComplete="street-address"
+                      className={cn(
+                        "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none",
+                        addressMissing
+                          ? "border-danger focus:border-danger"
+                          : "border-white/10 focus:border-primary",
+                      )}
+                    />
+                    {addressMissing ? (
+                      <p className="mt-1 text-xs text-danger">Escribe la dirección de entrega para continuar.</p>
+                    ) : null}
+                  </div>
+
+                  <div className="pb-4">
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">
+                      Método de pago
+                    </label>
+                    <select
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className={cn(
+                        "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-white focus:outline-none",
+                        paymentMissing
+                          ? "border-danger focus:border-danger"
+                          : "border-white/10 focus:border-primary",
+                        paymentMethod ? "" : "text-muted",
+                      )}
+                    >
+                      <option value="" disabled>
+                        Selecciona un método de pago
+                      </option>
+                      {paymentMethods.map((method) => (
+                        <option key={method} value={method} className="text-white">
+                          {method}
+                        </option>
+                      ))}
+                    </select>
+                    {paymentMissing ? (
+                      <p className="mt-1 text-xs text-danger">Selecciona un método de pago para continuar.</p>
+                    ) : null}
                   </div>
 
                   <div className="pb-4">
