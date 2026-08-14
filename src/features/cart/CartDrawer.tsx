@@ -11,7 +11,7 @@ import { useCartStore } from "@/store/cart.store";
 import { useUIStore } from "@/store/ui.store";
 import { CartLineItem } from "./CartLineItem";
 
-const paymentMethods = ["Efectivo contra entrega", "Transferencia (Nequi/Daviplata/Bancolombia)", "Tarjeta"];
+const paymentMethods = ["Efectivo contra entrega", "Nequi", "Bancolombia", "Davivienda"];
 
 export function CartDrawer() {
   const isOpen = useUIStore((s) => s.isCartOpen);
