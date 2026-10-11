@@ -35,10 +35,10 @@ export function Header() {
           className="absolute left-1/2 top-1/2 flex shrink-0 -translate-x-1/2 -translate-y-1/2 items-center"
         >
           <Image
-            src="/brand/logo-full.png"
-            alt="VANTRO"
-            width={1200}
-            height={860}
+            src="/brand/logo-emblem.png"
+            alt="VANTRO Carnes"
+            width={800}
+            height={543}
             className="h-14 w-auto sm:h-16"
             priority
           />
