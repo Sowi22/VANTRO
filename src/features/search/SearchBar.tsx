@@ -34,14 +34,14 @@ export function SearchBar({ autoFocus, onResultSelected }: SearchBarProps) {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-surface px-4 py-3">
+      <div className="flex items-center gap-3 rounded-2xl border border-charcoal/15 bg-surface px-4 py-3">
         <Search className="h-5 w-5 shrink-0 text-muted" />
         <input
           autoFocus={autoFocus}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="¿Qué producto estás buscando?"
-          className="w-full bg-transparent text-white placeholder:text-muted focus:outline-none"
+          className="w-full bg-transparent text-foreground placeholder:text-muted focus:outline-none"
         />
       </div>
 

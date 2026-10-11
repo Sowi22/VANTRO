@@ -28,13 +28,13 @@ export function MediaPlaceholder({ category, className, label }: MediaPlaceholde
   return (
     <div
       className={cn(
-        "relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] bg-gradient-to-br from-surface via-surface to-black",
+        "relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] bg-gradient-to-br from-wine via-primary to-primary",
         className,
       )}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(217,4,41,0.18),transparent_60%)]" />
-      <Icon className="relative h-10 w-10 text-white/25" strokeWidth={1.5} />
-      <span className="relative text-[11px] font-medium uppercase tracking-wide text-white/25">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(214,174,98,0.22),transparent_60%)]" />
+      <Icon className="relative h-10 w-10 text-gold/60" strokeWidth={1.5} />
+      <span className="relative text-[11px] font-medium uppercase tracking-wide text-ivory/50">
         {label ?? "Imagen próximamente"}
       </span>
     </div>

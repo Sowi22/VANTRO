@@ -1,15 +1,23 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #0d0d0d;
-  --color-surface: #171717;
-  --color-surface-hover: #1f1f1f;
-  --color-primary: #d90429;
-  --color-primary-hover: #b8031f;
-  --color-foreground: #ffffff;
-  --color-muted: #b7b7b7;
+  /* Paleta corporativa — BRIEF DE IDENTIDAD VISUAL §3 */
+  --color-bordo: #3a080c;
+  --color-wine: #6f1d24;
+  --color-gold: #d6ae62;
+  --color-ivory: #f8f1e2;
+  --color-charcoal: #262322;
+
+  /* Roles: secciones claras en marfil, bordó para encabezado, hero y pie */
+  --color-background: #f8f1e2;
+  --color-surface: #fffcf6;
+  --color-surface-hover: #f3ead7;
+  --color-primary: #3a080c;
+  --color-primary-hover: #6f1d24;
+  --color-foreground: #262322;
+  --color-muted: #625955;
   --color-success: #16a34a;
-  --color-danger: #dc2626;
+  --color-danger: #b42318;
   --font-sans: var(--font-poppins);
 }
 

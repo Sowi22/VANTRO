@@ -26,11 +26,11 @@ export function ProteinCategories() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
-            className="group flex items-center gap-4 overflow-hidden rounded-[20px] border border-white/[0.06] bg-surface p-4 text-left transition hover:border-primary/40"
+            className="group flex items-center gap-4 overflow-hidden rounded-[20px] border border-charcoal/10 bg-surface p-4 text-left transition hover:border-gold"
           >
             <MediaPlaceholder category={category.id} className="h-20 w-24 shrink-0" label="" />
             <div className="flex flex-1 flex-col gap-1">
-              <span className="text-lg font-bold uppercase text-white">{category.label}</span>
+              <span className="text-lg font-bold uppercase text-foreground">{category.label}</span>
               <span className="text-sm text-muted">{category.description}</span>
             </div>
             <ArrowRight className="h-5 w-5 shrink-0 text-primary transition group-hover:translate-x-1" />

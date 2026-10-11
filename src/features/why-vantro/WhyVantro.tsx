@@ -25,7 +25,7 @@ const pillars = [
 
 export function WhyVantro() {
   return (
-    <section className="border-t border-white/[0.06] bg-background py-14">
+    <section className="border-t border-charcoal/10 bg-background py-14">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionTitle
           eyebrow="¿Por qué VANTRO?"
@@ -37,9 +37,9 @@ export function WhyVantro() {
           {pillars.map((pillar) => (
             <div
               key={pillar.title}
-              className="flex flex-col gap-2 rounded-[20px] border border-white/[0.06] bg-surface p-5"
+              className="flex flex-col gap-2 rounded-[20px] border border-charcoal/10 bg-surface p-5"
             >
-              <h3 className="text-base font-semibold text-white">{pillar.title}</h3>
+              <h3 className="text-base font-semibold text-foreground">{pillar.title}</h3>
               <p className="text-sm text-muted">{pillar.description}</p>
             </div>
           ))}

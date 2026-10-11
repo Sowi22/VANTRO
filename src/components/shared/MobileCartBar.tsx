@@ -23,7 +23,7 @@ export function MobileCartBar() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ duration: 0.25 }}
-          className="fixed inset-x-4 bottom-4 z-30 flex items-center justify-between rounded-[18px] bg-primary px-5 py-4 text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] sm:hidden"
+          className="fixed inset-x-4 bottom-4 z-30 flex items-center justify-between rounded-[18px] bg-primary px-5 py-4 text-ivory shadow-[0_10px_30px_rgba(58,8,12,0.35)] sm:hidden"
         >
           <span className="flex items-center gap-2 text-sm font-semibold">
             <ShoppingBag className="h-4 w-4" />

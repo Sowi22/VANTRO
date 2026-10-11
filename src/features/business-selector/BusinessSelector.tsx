@@ -35,7 +35,7 @@ export function BusinessSelector() {
           onClick={() =>
             document.querySelector<HTMLButtonElement>('[aria-label="Buscar producto"]')?.click()
           }
-          className="flex min-h-[150px] flex-col items-center justify-center gap-3 rounded-[20px] border border-white/[0.06] bg-surface p-4 text-center text-white transition hover:border-white/20 active:scale-[0.98]"
+          className="flex min-h-[150px] flex-col items-center justify-center gap-3 rounded-[20px] border border-charcoal/10 bg-surface p-4 text-center text-foreground transition hover:border-gold active:scale-[0.98]"
         >
           <Search className="h-7 w-7" strokeWidth={1.5} />
           <span className="text-sm font-semibold leading-tight">Buscar producto</span>

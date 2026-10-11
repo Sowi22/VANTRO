@@ -49,12 +49,12 @@ export function Catalog() {
               type="button"
               onClick={clearFilter}
               aria-label="Volver a productos destacados"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white transition hover:bg-white/5"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-charcoal/15 text-foreground transition hover:bg-charcoal/5"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
           ) : null}
-          <h2 className="text-2xl font-bold text-white">{title}</h2>
+          <h2 className="text-2xl font-bold text-foreground">{title}</h2>
         </div>
 
         {activeFilter.type !== "all" ? (
@@ -69,8 +69,8 @@ export function Catalog() {
       </div>
 
       {products.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-[20px] border border-white/[0.06] bg-surface p-10 text-center">
-          <p className="text-white">
+        <div className="flex flex-col items-center gap-2 rounded-[20px] border border-charcoal/10 bg-surface p-10 text-center">
+          <p className="text-foreground">
             En este momento no tenemos productos disponibles para esta categoría.
           </p>
           <p className="text-sm text-muted">

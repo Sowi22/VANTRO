@@ -78,7 +78,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.35 }}
-      className="flex flex-col gap-3 rounded-[20px] border border-white/[0.06] bg-surface p-3"
+      className="flex flex-col gap-3 rounded-[20px] border border-charcoal/10 bg-surface p-3"
     >
       <div className="relative">
         {product.image && !imgError ? (
@@ -116,7 +116,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-1">
-        <h3 className="text-sm font-semibold leading-tight text-white">{product.name}</h3>
+        <h3 className="text-sm font-semibold leading-tight text-foreground">{product.name}</h3>
 
         {showPresentationPicker ? (
           <div className="flex flex-wrap gap-1.5 py-1">
@@ -128,8 +128,8 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
                 className={cn(
                   "rounded-full border px-2 py-0.5 text-[11px] font-medium transition",
                   index === presentationIndex
-                    ? "border-primary bg-primary/15 text-white"
-                    : "border-white/10 text-muted hover:border-white/25",
+                    ? "border-primary bg-primary text-ivory"
+                    : "border-charcoal/15 text-muted hover:border-charcoal/30",
                 )}
               >
                 {p.label}
@@ -142,7 +142,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
 
         {isAvailable ? (
           <span className="flex items-baseline gap-2">
-            <span className="text-base font-bold text-white">
+            <span className="text-base font-bold text-foreground">
               {formatCurrency(presentation.price as number)}
             </span>
             {presentation.compareAtPrice && presentation.compareAtPrice > (presentation.price as number) ? (
@@ -160,18 +160,18 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
 
       {isAvailable ? (
         quantityInCart > 0 ? (
-          <div className="flex h-11 items-center justify-between rounded-[18px] bg-white/5 px-2">
+          <div className="flex h-11 items-center justify-between rounded-[18px] bg-charcoal/5 px-2">
             <button
               type="button"
               aria-label="Disminuir cantidad"
               onClick={() =>
                 setQuantity(product.sku, presentation.label, quantityInCart - 1)
               }
-              className="flex h-9 w-9 items-center justify-center rounded-full text-white transition hover:bg-white/10 active:scale-95"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-foreground transition hover:bg-charcoal/15 active:scale-95"
             >
               <Minus className="h-4 w-4" />
             </button>
-            <span className="text-sm font-semibold text-white">{quantityInCart}</span>
+            <span className="text-sm font-semibold text-foreground">{quantityInCart}</span>
             <button
               type="button"
               aria-label="Aumentar cantidad"
@@ -179,7 +179,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
                 launchFly(event);
                 setQuantity(product.sku, presentation.label, quantityInCart + 1);
               }}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-white transition hover:bg-white/10 active:scale-95"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-foreground transition hover:bg-charcoal/15 active:scale-95"
             >
               <Plus className="h-4 w-4" />
             </button>

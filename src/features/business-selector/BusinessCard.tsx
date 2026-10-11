@@ -28,8 +28,8 @@ export function BusinessCard({ business, active, onSelect }: BusinessCardProps) 
       className={cn(
         "flex min-h-[150px] flex-col items-center justify-center gap-3 rounded-[20px] border p-4 text-center transition active:scale-[0.98]",
         active
-          ? "border-primary bg-primary text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
-          : "border-white/[0.06] bg-surface text-white hover:border-white/20",
+          ? "border-primary bg-primary text-ivory shadow-[0_10px_30px_rgba(58,8,12,0.25)]"
+          : "border-charcoal/10 bg-surface text-foreground hover:border-gold",
       )}
     >
       <Icon className="h-7 w-7" strokeWidth={1.5} />

@@ -78,7 +78,7 @@ export function CartDrawer() {
       {isOpen ? (
         <>
           <motion.div
-            className="fixed inset-0 z-50 bg-black/60"
+            className="fixed inset-0 z-50 bg-charcoal/60"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -91,15 +91,15 @@ export function CartDrawer() {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[90vh] flex-col rounded-t-[24px] border-t border-white/10 bg-background sm:inset-x-auto sm:right-0 sm:top-0 sm:h-full sm:max-h-none sm:w-[420px] sm:rounded-none sm:border-l sm:border-t-0"
+            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[90vh] flex-col rounded-t-[24px] border-t border-charcoal/15 bg-background sm:inset-x-auto sm:right-0 sm:top-0 sm:h-full sm:max-h-none sm:w-[420px] sm:rounded-none sm:border-l sm:border-t-0"
           >
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
-              <h2 className="text-lg font-bold text-white">Tu Pedido</h2>
+            <div className="flex items-center justify-between border-b border-charcoal/10 px-5 py-4">
+              <h2 className="text-lg font-bold text-foreground">Tu Pedido</h2>
               <button
                 type="button"
                 aria-label="Cerrar"
                 onClick={closeCart}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-white transition hover:bg-white/5"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-foreground transition hover:bg-charcoal/5"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -108,8 +108,8 @@ export function CartDrawer() {
             <div className="flex-1 overflow-y-auto px-5 py-2">
               {items.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center gap-3 py-16 text-center">
-                  <ShoppingBag className="h-10 w-10 text-white/20" />
-                  <p className="text-white">Aún no has agregado productos.</p>
+                  <ShoppingBag className="h-10 w-10 text-charcoal/25" />
+                  <p className="text-foreground">Aún no has agregado productos.</p>
                   <p className="text-sm text-muted">
                     Explora el catálogo y comienza tu pedido.
                   </p>
@@ -135,10 +135,10 @@ export function CartDrawer() {
                         placeholder="¿Cómo te llamas?"
                         autoComplete="name"
                         className={cn(
-                          "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none",
+                          "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted focus:outline-none",
                           nameMissing
                             ? "border-danger focus:border-danger"
-                            : "border-white/10 focus:border-primary",
+                            : "border-charcoal/15 focus:border-primary",
                         )}
                       />
                       {nameMissing ? (
@@ -156,7 +156,7 @@ export function CartDrawer() {
                         onChange={(e) => setCustomerPhone(e.target.value)}
                         placeholder="300 000 0000"
                         autoComplete="tel"
-                        className="w-full rounded-2xl border border-white/10 bg-surface px-4 py-3 text-sm text-white placeholder:text-muted focus:border-primary focus:outline-none"
+                        className="w-full rounded-2xl border border-charcoal/15 bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted focus:border-primary focus:outline-none"
                       />
                     </div>
                   </div>
@@ -172,10 +172,10 @@ export function CartDrawer() {
                       placeholder="Barrio, calle, número, referencia"
                       autoComplete="street-address"
                       className={cn(
-                        "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none",
+                        "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted focus:outline-none",
                         addressMissing
                           ? "border-danger focus:border-danger"
-                          : "border-white/10 focus:border-primary",
+                          : "border-charcoal/15 focus:border-primary",
                       )}
                     />
                     {addressMissing ? (
@@ -191,10 +191,10 @@ export function CartDrawer() {
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value)}
                       className={cn(
-                        "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-white focus:outline-none",
+                        "w-full rounded-2xl border bg-surface px-4 py-3 text-sm text-foreground focus:outline-none",
                         paymentMissing
                           ? "border-danger focus:border-danger"
-                          : "border-white/10 focus:border-primary",
+                          : "border-charcoal/15 focus:border-primary",
                         paymentMethod ? "" : "text-muted",
                       )}
                     >
@@ -202,7 +202,7 @@ export function CartDrawer() {
                         Selecciona un método de pago
                       </option>
                       {paymentMethods.map((method) => (
-                        <option key={method} value={method} className="text-white">
+                        <option key={method} value={method} className="text-foreground">
                           {method}
                         </option>
                       ))}
@@ -221,7 +221,7 @@ export function CartDrawer() {
                       onChange={(e) => setObservations(e.target.value)}
                       placeholder="¿Hay alguna indicación especial para preparar tu pedido?"
                       rows={3}
-                      className="w-full resize-none rounded-2xl border border-white/10 bg-surface px-4 py-3 text-sm text-white placeholder:text-muted focus:border-primary focus:outline-none"
+                      className="w-full resize-none rounded-2xl border border-charcoal/15 bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted focus:border-primary focus:outline-none"
                     />
                   </div>
                 </>
@@ -229,10 +229,10 @@ export function CartDrawer() {
             </div>
 
             {items.length > 0 ? (
-              <div className="border-t border-white/[0.06] px-5 py-4">
+              <div className="border-t border-charcoal/10 px-5 py-4">
                 <div className="mb-3 flex items-center justify-between text-sm text-muted">
                   <span>Valor estimado</span>
-                  <span className="text-base font-bold text-white">
+                  <span className="text-base font-bold text-foreground">
                     {hasAllPrices ? formatCurrency(totalEstimated) : "Por confirmar"}
                   </span>
                 </div>

@@ -8,10 +8,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-primary text-white hover:bg-primary-hover",
+        primary: "bg-primary text-ivory hover:bg-primary-hover",
         secondary:
-          "border border-white/15 bg-transparent text-white hover:bg-white/5",
-        ghost: "bg-transparent text-white hover:bg-white/5",
+          "border border-charcoal/15 bg-ivory text-primary hover:border-gold",
+        ghost: "bg-transparent text-foreground hover:bg-charcoal/5",
+        // Para fondos bordó (hero): marfil con texto bordó, alto contraste.
+        light: "bg-ivory text-primary hover:bg-white",
         success: "bg-success text-white hover:brightness-110",
       },
       size: {

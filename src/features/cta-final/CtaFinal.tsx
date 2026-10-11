@@ -9,12 +9,12 @@ export function CtaFinal() {
   );
 
   return (
-    <section className="border-t border-white/[0.06] bg-surface py-14">
+    <section className="bg-wine py-14">
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 text-center sm:px-6">
-        <h2 className="text-2xl font-bold text-white sm:text-3xl">
+        <h2 className="text-2xl font-bold text-ivory sm:text-3xl">
           ¿Listo para realizar tu pedido?
         </h2>
-        <p className="text-muted">
+        <p className="text-ivory/80">
           Estamos preparados para ayudarte a abastecer tu negocio con productos de calidad,
           atención personalizada y entregas organizadas.
         </p>
