@@ -15,11 +15,11 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "VANTRO | Proteínas Premium para Restaurantes y Negocios en Barranquilla",
+  title: "Carnes Vantro",
   description:
     "Seleccionamos, porcionamos y empacamos al vacío carnes, pollo y cerdo para restaurantes, comidas rápidas y hogares en Barranquilla. Calidad constante, higiene y entregas confiables.",
   openGraph: {
-    title: "VANTRO | Proteínas Premium para Restaurantes",
+    title: "Carnes Vantro",
     description:
       "Calidad constante, empaque al vacío y entregas confiables para negocios gastronómicos.",
     images: ["/brand/logo-full.png"],
