@@ -8,14 +8,15 @@ import type { ProteinCategory } from "@/types/product.types";
 import type { CatalogSection } from "./categories";
 
 /**
- * Tarjetas de categoría (Res, Pollo, Cerdo, Vísceras…) siempre visibles
- * debajo del inicio: un toque lleva a la sección de esa categoría.
+ * Tarjetas de categoría (Res, Pollo, Cerdo, Vísceras…) debajo del inicio:
+ * un toque lleva a la sección de esa categoría. Solo desde tableta; en el
+ * celular la barra fija de categorías cumple esa función.
  */
 export function CategoryCards({ sections }: { sections: CatalogSection[] }) {
   const categories = sections.filter((s) => s.id.startsWith("cat-"));
 
   return (
-    <section aria-label="Categorías" className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+    <section aria-label="Categorías" className="mx-auto hidden max-w-7xl px-6 py-8 sm:block">
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {categories.map((section, index) => {
           const photo = section.products.find((p) => p.image)?.image;
