@@ -27,8 +27,8 @@
 
 html {
   scroll-behavior: smooth;
-  /* Encabezado (64 px) + barra de categorías (56 px) */
-  scroll-padding-top: 120px;
+  /* Encabezado (64 px) + barra de categorías grande del celular (81 px) */
+  scroll-padding-top: 145px;
 }
 
 body {
@@ -73,6 +73,13 @@ body {
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+@media (min-width: 640px) {
+  html {
+    /* Encabezado (76 px) + barra de categorías (56 px) */
+    scroll-padding-top: 132px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

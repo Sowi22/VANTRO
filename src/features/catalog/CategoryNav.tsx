@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Beef, Bone, Drumstick, Ham, Package, Tag, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const icons: Record<string, LucideIcon> = {
+  ofertas: Tag,
+  "cat-res": Beef,
+  "cat-pollo": Drumstick,
+  "cat-cerdo": Ham,
+  "cat-visceras": Bone,
+};
 
 interface CategoryNavProps {
   sections: { id: string; label: string }[];
@@ -9,7 +18,9 @@ interface CategoryNavProps {
 
 /**
  * Barra de categorías fija bajo el encabezado: un toque lleva a la sección
- * y la categoría visible se resalta sola mientras se hace scroll.
+ * y la categoría visible se resalta sola mientras se hace scroll. En el
+ * celular los botones son grandes (con ícono) y ocupan todo el ancho, y la
+ * barra conserva ese tamaño mientras queda fija.
  */
 export function CategoryNav({ sections }: CategoryNavProps) {
   const [active, setActive] = useState(sections[0]?.id);
@@ -22,7 +33,7 @@ export function CategoryNav({ sections }: CategoryNavProps) {
         if (visible.length > 0) setActive(visible[0].target.id);
       },
       // Franja horizontal justo debajo de las barras fijas.
-      { rootMargin: "-130px 0px -60% 0px" },
+      { rootMargin: "-150px 0px -60% 0px" },
     );
     sections.forEach((s) => {
       const el = document.getElementById(s.id);
@@ -51,23 +62,28 @@ export function CategoryNav({ sections }: CategoryNavProps) {
     >
       <div
         ref={trackRef}
-        className="no-scrollbar mx-auto flex h-14 max-w-7xl items-center gap-2 overflow-x-auto px-4 sm:px-6"
+        className="no-scrollbar mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-3 py-2.5 sm:h-14 sm:px-6 sm:py-0"
       >
-        {sections.map((section) => (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            data-chip={section.id}
-            className={cn(
-              "flex h-10 shrink-0 items-center rounded-full px-4 text-sm font-semibold transition active:scale-95",
-              active === section.id
-                ? "bg-primary text-ivory"
-                : "border border-charcoal/15 bg-surface text-foreground hover:border-gold",
-            )}
-          >
-            {section.label}
-          </a>
-        ))}
+        {sections.map((section) => {
+          const Icon = icons[section.id] ?? Package;
+          return (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              data-chip={section.id}
+              className={cn(
+                "flex h-[60px] min-w-[76px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl text-sm font-semibold transition active:scale-95",
+                "sm:h-10 sm:min-w-0 sm:flex-none sm:flex-row sm:rounded-full sm:px-4",
+                active === section.id
+                  ? "bg-primary text-ivory"
+                  : "border border-charcoal/15 bg-surface text-foreground hover:border-gold",
+              )}
+            >
+              <Icon className="h-5 w-5 sm:hidden" strokeWidth={1.75} />
+              {section.label}
+            </a>
+          );
+        })}
       </div>
     </nav>
   );
