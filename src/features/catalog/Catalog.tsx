@@ -1,90 +1,92 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
-import { businessTypes, proteinCategories } from "@/data/businesses";
-import { applyPriceOverrides, getProductsForFilter } from "@/services/product.service";
-import { usePricesStore } from "@/store/prices.store";
-import { useUIStore } from "@/store/ui.store";
+import { useMemo } from "react";
+import { motion } from "motion/react";
+import { TrustMarquee } from "@/components/shared/TrustMarquee";
+import { getBestOffer, useCatalog } from "@/hooks/useCatalog";
+import { formatCurrency } from "@/lib/currency";
+import { cn } from "@/lib/utils";
+import { CategoryNav } from "./CategoryNav";
+import { groupByCategory, type CatalogSection } from "./categories";
 import { ProductCard } from "./ProductCard";
 
-const titleByFilter = {
-  all: "Catálogo completo",
-  business: (value: string) =>
-    businessTypes.find((b) => b.id === value)?.label ?? "Catálogo",
-  protein: (value: string) =>
-    `Categoría: ${proteinCategories.find((p) => p.id === value)?.label ?? value}`,
-};
+const OFFERS_SECTION_ID = "ofertas";
 
+/**
+ * Catálogo completo en una sola página, una sección por categoría: la
+ * persona solo hace scroll y agrega, sin abrir filtros ni pantallas nuevas.
+ */
 export function Catalog() {
-  const activeFilter = useUIStore((s) => s.activeFilter);
-  const clearFilter = useUIStore((s) => s.clearFilter);
-  const priceOverrides = usePricesStore((s) => s.overrides);
-  const availability = usePricesStore((s) => s.availability);
-  const patches = usePricesStore((s) => s.patches);
-  const newProducts = usePricesStore((s) => s.newProducts);
-  const hiddenSkus = usePricesStore((s) => s.hiddenSkus);
-  const visibleSkus = usePricesStore((s) => s.visibleSkus);
-  const products = applyPriceOverrides(
-    getProductsForFilter(activeFilter, newProducts),
-    priceOverrides,
-    availability,
-    patches,
-    hiddenSkus,
-    visibleSkus,
-  );
+  const catalog = useCatalog();
 
-  const title =
-    activeFilter.type === "all"
-      ? titleByFilter.all
-      : activeFilter.type === "business"
-        ? titleByFilter.business(activeFilter.value)
-        : titleByFilter.protein(activeFilter.value);
+  const sections = useMemo<CatalogSection[]>(() => {
+    const offers = catalog.filter((p) => getBestOffer(p));
+    const byCategory = groupByCategory(catalog);
+    return offers.length > 0
+      ? [{ id: OFFERS_SECTION_ID, label: "Ofertas", products: offers }, ...byCategory]
+      : byCategory;
+  }, [catalog]);
 
   return (
-    <section id="catalogo" className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          {activeFilter.type !== "all" ? (
-            <button
-              type="button"
-              onClick={clearFilter}
-              aria-label="Volver a productos destacados"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-charcoal/15 text-foreground transition hover:bg-charcoal/5"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-          ) : null}
-          <h2 className="text-2xl font-bold text-foreground">{title}</h2>
-        </div>
+    <>
+      <CategoryNav sections={sections} />
+      <TrustMarquee />
 
-        {activeFilter.type !== "all" ? (
-          <button
-            type="button"
-            onClick={clearFilter}
-            className="text-sm font-semibold text-primary hover:underline"
-          >
-            Ver todo
-          </button>
-        ) : null}
-      </div>
-
-      {products.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-[20px] border border-charcoal/10 bg-surface p-10 text-center">
-          <p className="text-foreground">
-            En este momento no tenemos productos disponibles para esta categoría.
-          </p>
-          <p className="text-sm text-muted">
+      <div id="catalogo">
+        {sections.length === 0 ? (
+          <p className="mx-auto max-w-7xl px-4 py-16 text-center text-muted sm:px-6">
             Nuestro equipo está actualizando el inventario. Si necesitas ayuda, escríbenos por
             WhatsApp.
           </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {products.map((product) => (
-            <ProductCard key={product.sku} product={product} />
+        ) : (
+          sections.map((section, index) => (
+            <CategorySection key={section.id} section={section} alt={index % 2 === 1} />
+          ))
+        )}
+      </div>
+    </>
+  );
+}
+
+function CategorySection({ section, alt }: { section: CatalogSection; alt: boolean }) {
+  const minPrice = Math.min(
+    ...section.products.flatMap((p) => p.presentations.map((pr) => pr.price ?? Infinity)),
+  );
+
+  return (
+    <section id={section.id} className={cn("py-10 sm:py-14", alt ? "bg-cloud" : "bg-background")}>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-6 flex items-end justify-between gap-4"
+        >
+          <div className="flex flex-col gap-1">
+            <h2 className="font-display text-3xl font-bold text-primary sm:text-4xl">
+              {section.label}
+            </h2>
+            {section.description ? (
+              <p className="text-sm text-muted sm:text-base">{section.description}</p>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 flex-col items-end text-right">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted">
+              {section.products.length} {section.products.length === 1 ? "producto" : "productos"}
+            </span>
+            {Number.isFinite(minPrice) ? (
+              <span className="text-sm font-semibold text-wine">desde {formatCurrency(minPrice)}</span>
+            ) : null}
+          </div>
+        </motion.div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+          {section.products.map((product, index) => (
+            <ProductCard key={product.sku} product={product} index={index} />
           ))}
         </div>
-      )}
+      </div>
     </section>
   );
 }

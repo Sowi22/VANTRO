@@ -5,6 +5,7 @@ import type {
   Product,
   ProductPatchMap,
 } from "@/types/product.types";
+import type { PriceSheetData } from "@/lib/price-sheet";
 
 interface PricesState {
   overrides: PriceOverrideMap;
@@ -21,6 +22,8 @@ interface PricesState {
   status: "idle" | "loading" | "ready" | "error";
   lastSyncedAt: number | null;
   fetchPrices: () => Promise<void>;
+  /** Carga datos ya obtenidos (en el servidor o por `/api/prices`). */
+  hydrate: (data: Partial<PriceSheetData>) => void;
 }
 
 /**
@@ -30,6 +33,27 @@ interface PricesState {
  * más reciente. Si la sincronización falla, todo queda vacío/sin restringir
  * y el catálogo simplemente usa los datos completos de `data/products.ts`.
  */
+export type CatalogData = Pick<
+  PricesState,
+  "overrides" | "availability" | "patches" | "newProducts" | "hiddenSkus" | "visibleSkus"
+>;
+
+/** Normaliza la respuesta de la hoja al formato que usa el catálogo. */
+export function toCatalogData(data: Partial<PriceSheetData>): CatalogData {
+  const mentionedSkus = data.mentionedSkus ?? [];
+  return {
+    overrides: data.overrides ?? {},
+    availability: data.availability ?? {},
+    patches: data.patches ?? {},
+    newProducts: data.newProducts ?? [],
+    hiddenSkus: data.hiddenSkus ?? [],
+    // Solo restringimos el catálogo cuando la hoja sincronizó de verdad
+    // (source "sheet") y trajo al menos un sku — evita que un formato
+    // roto o una hoja momentáneamente vacía vacíen todo el catálogo.
+    visibleSkus: data.source === "sheet" && mentionedSkus.length > 0 ? mentionedSkus : undefined,
+  };
+}
+
 export const usePricesStore = create<PricesState>((set) => ({
   overrides: {},
   availability: {},
@@ -40,33 +64,13 @@ export const usePricesStore = create<PricesState>((set) => ({
   status: "idle",
   lastSyncedAt: null,
 
+  hydrate: (data) => set({ ...toCatalogData(data), status: "ready", lastSyncedAt: Date.now() }),
+
   fetchPrices: async () => {
-    set({ status: "loading" });
     try {
       const res = await fetch("/api/prices", { cache: "no-store" });
-      const data = (await res.json()) as {
-        overrides?: PriceOverrideMap;
-        availability?: AvailabilityOverrideMap;
-        patches?: ProductPatchMap;
-        newProducts?: Product[];
-        hiddenSkus?: string[];
-        mentionedSkus?: string[];
-        source?: string;
-      };
-      const mentionedSkus = data.mentionedSkus ?? [];
-      set({
-        overrides: data.overrides ?? {},
-        availability: data.availability ?? {},
-        patches: data.patches ?? {},
-        newProducts: data.newProducts ?? [],
-        hiddenSkus: data.hiddenSkus ?? [],
-        // Solo restringimos el catálogo cuando la hoja sincronizó de verdad
-        // (source "sheet") y trajo al menos un sku — evita que un formato
-        // roto o una hoja momentáneamente vacía vacíen todo el catálogo.
-        visibleSkus: data.source === "sheet" && mentionedSkus.length > 0 ? mentionedSkus : undefined,
-        status: "ready",
-        lastSyncedAt: Date.now(),
-      });
+      const data = (await res.json()) as Partial<PriceSheetData>;
+      usePricesStore.getState().hydrate(data);
     } catch (error) {
       console.error("No se pudieron sincronizar los precios de VANTRO:", error);
       set({ status: "error" });

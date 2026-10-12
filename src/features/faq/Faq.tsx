@@ -10,7 +10,7 @@ export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="border-t border-charcoal/10 bg-background py-14">
+    <section className="bg-cloud py-14">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <SectionTitle title="Preguntas frecuentes" align="center" className="mb-8" />
 

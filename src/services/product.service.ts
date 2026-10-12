@@ -1,13 +1,10 @@
 import { products, getProductBySku } from "@/data/products";
 import type {
   AvailabilityOverrideMap,
-  BusinessSegment,
   PriceOverrideMap,
   Product,
   ProductPatchMap,
-  ProteinCategory,
 } from "@/types/product.types";
-import type { ActiveFilter } from "@/store/ui.store";
 
 /**
  * Catálogo base más los productos creados desde la hoja de precios (sku que
@@ -33,14 +30,6 @@ export function getAllProductsSorted(extraProducts: Product[] = []): Product[] {
   return [...withExtras(extraProducts)].sort((a, b) => Number(b.featured) - Number(a.featured));
 }
 
-export function getProductsByBusiness(segment: BusinessSegment, extraProducts: Product[] = []): Product[] {
-  return withExtras(extraProducts).filter((product) => product.businessSegments.includes(segment));
-}
-
-export function getProductsByProtein(category: ProteinCategory, extraProducts: Product[] = []): Product[] {
-  return withExtras(extraProducts).filter((product) => product.proteinCategory === category);
-}
-
 export function searchProducts(query: string, extraProducts: Product[] = []): Product[] {
   const normalized = query.trim().toLowerCase();
   if (!normalized) return [];
@@ -50,17 +39,6 @@ export function searchProducts(query: string, extraProducts: Product[] = []): Pr
       .toLowerCase()
       .includes(normalized),
   );
-}
-
-/**
- * `extraProducts`: productos creados desde la hoja de precios (sku que no
- * existía en `data/products.ts`). Se incluyen en cualquier filtro, igual
- * que los productos del catálogo base.
- */
-export function getProductsForFilter(filter: ActiveFilter, extraProducts: Product[] = []): Product[] {
-  if (filter.type === "business") return getProductsByBusiness(filter.value, extraProducts);
-  if (filter.type === "protein") return getProductsByProtein(filter.value, extraProducts);
-  return getAllProductsSorted(extraProducts);
 }
 
 function overrideKey(sku: string, presentationLabel: string): string {

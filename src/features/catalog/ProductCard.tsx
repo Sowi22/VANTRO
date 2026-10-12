@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { MediaPlaceholder } from "@/components/shared/MediaPlaceholder";
 import { formatCurrency } from "@/lib/currency";
+import { imgurSrcSet, imgurVariant } from "@/lib/image";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/cart.store";
 import { useFlyToCartStore } from "@/store/fly-to-cart.store";
@@ -22,9 +23,11 @@ const statusMessage: Record<string, string> = {
 interface ProductCardProps {
   product: Product;
   onAdded?: () => void;
+  /** Posición en la cuadrícula, para escalonar la animación de entrada. */
+  index?: number;
 }
 
-export function ProductCard({ product, onAdded }: ProductCardProps) {
+export function ProductCard({ product, onAdded, index = 0 }: ProductCardProps) {
   const [presentationIndex, setPresentationIndex] = useState(() => {
     const firstWithPrice = product.presentations.findIndex((p) => p.price != null);
     return firstWithPrice >= 0 ? firstWithPrice : 0;
@@ -74,11 +77,11 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 28, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.35 }}
-      className="flex flex-col gap-3 rounded-[20px] border border-charcoal/10 bg-surface p-3"
+      transition={{ duration: 0.5, delay: (index % 4) * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col gap-3 rounded-[20px] border border-charcoal/10 bg-surface p-2.5 shadow-[0_1px_2px_rgba(38,35,34,0.04)] transition-shadow hover:shadow-[0_12px_30px_rgba(58,8,12,0.10)] sm:p-3"
     >
       <div className="relative">
         {product.image && !imgError ? (
@@ -89,10 +92,14 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
               // de exigir configurar next/image para cada dominio posible.
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={product.image}
+                src={imgurVariant(product.image, "m")}
+                srcSet={imgurSrcSet(product.image)}
+                sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 230px"
                 alt={product.name}
+                loading="lazy"
+                decoding="async"
                 onError={() => setImgError(true)}
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 hover:scale-105"
               />
             ) : (
               <Image
@@ -116,7 +123,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-1">
-        <h3 className="text-sm font-semibold leading-tight text-foreground">{product.name}</h3>
+        <h3 className="text-[15px] font-semibold leading-tight text-foreground">{product.name}</h3>
 
         {showPresentationPicker ? (
           <div className="flex flex-wrap gap-1.5 py-1">
@@ -126,7 +133,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
                 type="button"
                 onClick={() => setPresentationIndex(index)}
                 className={cn(
-                  "rounded-full border px-2 py-0.5 text-[11px] font-medium transition",
+                  "rounded-full border px-2.5 py-1 text-xs font-medium transition",
                   index === presentationIndex
                     ? "border-primary bg-primary text-ivory"
                     : "border-charcoal/15 text-muted hover:border-charcoal/30",
@@ -160,7 +167,7 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
 
       {isAvailable ? (
         quantityInCart > 0 ? (
-          <div className="flex h-11 items-center justify-between rounded-[18px] bg-charcoal/5 px-2">
+          <div className="flex h-11 items-center justify-between rounded-[18px] bg-primary/5 px-1.5">
             <button
               type="button"
               aria-label="Disminuir cantidad"
@@ -185,12 +192,12 @@ export function ProductCard({ product, onAdded }: ProductCardProps) {
             </button>
           </div>
         ) : (
-          <Button size="sm" className="w-full" onClick={handleAdd}>
+          <Button size="sm" className="h-11 w-full" onClick={handleAdd}>
             {justAdded ? "✓ Agregado" : "Agregar"}
           </Button>
         )
       ) : (
-        <Button size="sm" variant="secondary" className="w-full" disabled>
+        <Button size="sm" variant="secondary" className="h-11 w-full" disabled>
           {product.status === "agotado" ? "Agotado" : "Próximamente"}
         </Button>
       )}

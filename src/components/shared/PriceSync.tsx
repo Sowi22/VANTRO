@@ -1,23 +1,41 @@
 "use client";
 
-import { useEffect } from "react";
+import { createContext, useContext, useEffect } from "react";
+import type { PriceSheetData } from "@/lib/price-sheet";
 import { usePricesStore } from "@/store/prices.store";
 
 const SYNC_INTERVAL_MS = 3 * 60 * 1000; // 3 minutos
 
+const InitialPriceDataContext = createContext<PriceSheetData | null>(null);
+
+/** Hoja de precios leída en el servidor para esta página (o null). */
+export function useInitialPriceData() {
+  return useContext(InitialPriceDataContext);
+}
+
 /**
- * Componente sin render: sincroniza los precios al cargar la página y cada
- * 3 minutos mientras el catálogo sigue abierto, para que un cliente que deja
- * la pestaña abierta vea precios actualizados sin recargar manualmente.
+ * Recibe la hoja ya leída en el servidor y la pone a disposición del
+ * catálogo por contexto: así el HTML llega con los productos y precios
+ * reales, sin mostrar el catálogo base y luego cambiarlo. Después la copia
+ * al store y sincroniza cada 3 minutos para quien deja la pestaña abierta.
  */
-export function PriceSync() {
+export function PriceSync({
+  initialData,
+  children,
+}: {
+  initialData: PriceSheetData;
+  children: React.ReactNode;
+}) {
+  const hydrate = usePricesStore((s) => s.hydrate);
   const fetchPrices = usePricesStore((s) => s.fetchPrices);
 
   useEffect(() => {
-    fetchPrices();
+    hydrate(initialData);
     const interval = window.setInterval(fetchPrices, SYNC_INTERVAL_MS);
     return () => window.clearInterval(interval);
-  }, [fetchPrices]);
+  }, [initialData, hydrate, fetchPrices]);
 
-  return null;
+  return (
+    <InitialPriceDataContext.Provider value={initialData}>{children}</InitialPriceDataContext.Provider>
+  );
 }

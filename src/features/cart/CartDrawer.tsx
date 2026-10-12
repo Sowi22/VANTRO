@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -16,7 +16,6 @@ const paymentMethods = ["Efectivo contra entrega", "Nequi", "Bancolombia", "Davi
 export function CartDrawer() {
   const isOpen = useUIStore((s) => s.isCartOpen);
   const closeCart = useUIStore((s) => s.closeCart);
-  const activeFilter = useUIStore((s) => s.activeFilter);
 
   const items = useCartStore((s) => s.items);
   const observations = useCartStore((s) => s.observations);
@@ -33,10 +32,13 @@ export function CartDrawer() {
   const clearCart = useCartStore((s) => s.clear);
   const hasAllPrices = items.every((i) => i.unitPrice != null);
 
+  // Carga el pedido guardado en este navegador (persist con skipHydration).
+  useEffect(() => {
+    useCartStore.persist.rehydrate();
+  }, []);
+
   const [sending, setSending] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
-
-  const businessType = activeFilter.type === "business" ? activeFilter.value : null;
 
   const nameMissing = showValidation && !customerName.trim();
   const addressMissing = showValidation && !customerAddress.trim();
@@ -49,7 +51,7 @@ export function CartDrawer() {
     }
 
     setSending(true);
-    const message = buildOrderMessage(items, businessType, observations, {
+    const message = buildOrderMessage(items, null, observations, {
       name: customerName,
       phone: customerPhone,
       address: customerAddress,

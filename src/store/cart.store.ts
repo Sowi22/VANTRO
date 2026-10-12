@@ -98,6 +98,10 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "vantro-centro-de-pedido",
+      // El HTML llega del servidor con el carrito vacío; el guardado en el
+      // navegador se carga después de hidratar (ver CartDrawer) para que el
+      // primer render coincida y React no tenga que rehacer la página.
+      skipHydration: true,
       partialize: (state) => ({
         items: state.items,
         observations: state.observations,

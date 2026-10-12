@@ -11,9 +11,11 @@ import { SearchBar } from "@/features/search/SearchBar";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const totalItems = useCartStore((s) => s.totalItems());
   const openCart = useUIStore((s) => s.openCart);
+  const searchOpen = useUIStore((s) => s.isSearchOpen);
+  const toggleSearch = useUIStore((s) => s.toggleSearch);
+  const closeSearch = useUIStore((s) => s.closeSearch);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -25,7 +27,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 h-[84px] w-full backdrop-blur-md transition-colors duration-200",
+        "sticky top-0 z-40 h-16 w-full sm:h-[76px] backdrop-blur-md transition-colors duration-200",
         scrolled ? "bg-bordo/95 border-b border-gold/20" : "bg-bordo",
       )}
     >
@@ -39,7 +41,7 @@ export function Header() {
             alt="VANTRO Carnes"
             width={800}
             height={543}
-            className="h-14 w-auto sm:h-16"
+            className="h-12 w-auto sm:h-14"
             priority
           />
         </a>
@@ -47,7 +49,7 @@ export function Header() {
         <div className="flex items-center gap-1 sm:gap-2">
           <button
             type="button"
-            onClick={() => setSearchOpen((v) => !v)}
+            onClick={toggleSearch}
             aria-label="Buscar producto"
             className="flex h-11 items-center gap-2 rounded-full px-3 text-ivory transition hover:bg-ivory/10 hover:text-gold active:scale-95"
           >
@@ -81,7 +83,7 @@ export function Header() {
 
       {searchOpen ? (
         <div className="border-t border-gold/20 bg-background px-4 py-3 sm:px-6">
-          <SearchBar autoFocus onResultSelected={() => setSearchOpen(false)} />
+          <SearchBar autoFocus onResultSelected={closeSearch} />
         </div>
       ) : null}
     </header>

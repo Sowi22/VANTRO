@@ -28,7 +28,7 @@ export function SectionTitle({
           {eyebrow}
         </span>
       ) : null}
-      <h2 className="text-2xl font-bold text-primary sm:text-3xl">{title}</h2>
+      <h2 className="font-display text-3xl font-bold text-primary sm:text-4xl">{title}</h2>
       {subtitle ? <p className="max-w-2xl text-muted">{subtitle}</p> : null}
     </div>
   );
