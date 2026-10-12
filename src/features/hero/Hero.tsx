@@ -8,6 +8,7 @@ import { PromoCarousel } from "./PromoCarousel";
 
 const benefits = ["Empacado al vacío", "Calidad constante", "Entrega rápida en Barranquilla"];
 
+/** Solo desde tableta: en el celular la página empieza directo en el catálogo. */
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
   // Efecto tipo Apple: al bajar, el hero se aleja suavemente (escala y
@@ -21,7 +22,7 @@ export function Hero() {
   );
 
   return (
-    <section ref={ref} id="inicio" className="relative overflow-hidden bg-bordo">
+    <section ref={ref} id="inicio" className="relative hidden overflow-hidden bg-bordo sm:block">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(111,29,36,0.9),transparent_60%)]" />
       <motion.div
         style={{ scale, opacity }}

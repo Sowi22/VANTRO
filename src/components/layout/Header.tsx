@@ -33,7 +33,7 @@ export function Header() {
     >
       <div className="relative mx-auto flex h-full max-w-7xl items-center justify-end gap-4 px-4 sm:px-6">
         <a
-          href="#inicio"
+          href="#"
           className="absolute left-1/2 top-1/2 flex shrink-0 -translate-x-1/2 -translate-y-1/2 items-center"
         >
           <Image

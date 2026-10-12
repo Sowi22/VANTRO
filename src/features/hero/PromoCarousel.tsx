@@ -109,7 +109,7 @@ export function PromoCarousel() {
             aria-label={`${index + 1} de ${slides.length}`}
           >
             {slide.kind === "product" ? (
-              <ProductSlide {...slide} eager={index === 0} />
+              <ProductSlide {...slide} />
             ) : (
               <DeliverySlide />
             )}
@@ -149,13 +149,11 @@ function ProductSlide({
   presentation,
   badge,
   isOffer,
-  eager,
 }: {
   product: Product;
   presentation: Presentation;
   badge: string;
   isOffer: boolean;
-  eager: boolean;
 }) {
   const addItem = useCartStore((s) => s.addItem);
   const [added, setAdded] = useState(false);
@@ -186,8 +184,9 @@ function ProductSlide({
           srcSet={imgurSrcSet(product.image)}
           sizes="(max-width: 1024px) 92vw, 560px"
           alt={product.name}
-          loading={eager ? "eager" : "lazy"}
-          fetchPriority={eager ? "high" : "auto"}
+          // Diferida también la primera: en el celular el carrusel está
+          // oculto y así no se descarga la foto.
+          loading="lazy"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover"
         />
