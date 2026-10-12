@@ -61,7 +61,6 @@ export const proteinCategories: ProteinCategoryOption[] = [
   {
     id: "visceras",
     label: "Vísceras",
-    description:
-      "Hígado, corazón, bofe, huesos y más, listos para preparar. Todas las porciones vienen en bolsas al vacío.",
+    description: "Todas las porciones vienen en bolsas al vacío.",
   },
 ];
