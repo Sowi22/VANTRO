@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { motion } from "motion/react";
+import { TrustMarquee } from "@/components/shared/TrustMarquee";
 import { brand } from "@/config/brand";
 import { getBestOffer, useCatalog } from "@/hooks/useCatalog";
 import { formatCurrency } from "@/lib/currency";
@@ -32,6 +33,7 @@ export function Catalog() {
     <>
       <CategoryCards sections={sections} />
       <CategoryNav sections={sections} />
+      <TrustMarquee />
 
       <div id="catalogo">
         {sections.length === 0 ? (
