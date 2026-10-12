@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUIStore } from "@/store/ui.store";
 
 interface CategoryNavProps {
   sections: { id: string; label: string }[];
@@ -16,7 +14,6 @@ interface CategoryNavProps {
 export function CategoryNav({ sections }: CategoryNavProps) {
   const [active, setActive] = useState(sections[0]?.id);
   const trackRef = useRef<HTMLDivElement>(null);
-  const openSearch = useUIStore((s) => s.openSearch);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -56,14 +53,6 @@ export function CategoryNav({ sections }: CategoryNavProps) {
         ref={trackRef}
         className="no-scrollbar mx-auto flex h-14 max-w-7xl items-center gap-2 overflow-x-auto px-4 sm:px-6"
       >
-        <button
-          type="button"
-          onClick={openSearch}
-          aria-label="Buscar producto"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-charcoal/15 bg-surface text-primary transition active:scale-95"
-        >
-          <Search className="h-4 w-4" />
-        </button>
         {sections.map((section) => (
           <a
             key={section.id}
