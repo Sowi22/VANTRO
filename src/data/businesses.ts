@@ -13,19 +13,22 @@ export const businessTypes: BusinessType[] = [
     id: "asadero",
     label: "Asadero",
     icon: "Flame",
-    description: "Productos ideales para parrillas, asados y restaurantes especializados en carnes.",
+    description:
+      "Productos ideales para parrillas, asados y restaurantes especializados en carnes.",
   },
   {
     id: "restaurante",
     label: "Restaurante",
     icon: "ChefHat",
-    description: "Productos para restaurantes, almuerzos ejecutivos, hoteles y cocinas de producción.",
+    description:
+      "Productos para restaurantes, almuerzos ejecutivos, hoteles y cocinas de producción.",
   },
   {
     id: "hogar",
     label: "Hogar",
     icon: "Home",
-    description: "Compra la misma calidad que utilizan muchos negocios gastronómicos y recíbela en tu hogar.",
+    description:
+      "Compra la misma calidad que utilizan muchos negocios gastronómicos y recíbela en tu hogar.",
   },
   {
     id: "fitness",
@@ -40,9 +43,25 @@ export const proteinCategories: ProteinCategoryOption[] = [
   {
     id: "res",
     label: "Res",
-    description: "Cortes seleccionados de la mejor calidad. Todas las porciones vienen en bolsas al vacío.",
+    description:
+      "Cortes seleccionados de la mejor calidad. Todas las porciones vienen en bolsas al vacío.",
   },
-  { id: "pollo", label: "Pollo", description: "Fresco, natural y listo para tus recetas." },
-  { id: "cerdo", label: "Cerdo", description: "Jugoso, tierno y perfecto para cualquier plato." },
-  { id: "visceras", label: "Vísceras", description: "Hígado, corazón, bofe, huesos y más, listos para preparar." },
+  {
+    id: "pollo",
+    label: "Pollo",
+    description:
+      "Fresco, natural y listo para tus recetas. Todas las porciones vienen en bolsas al vacío.",
+  },
+  {
+    id: "cerdo",
+    label: "Cerdo",
+    description:
+      "Jugoso, tierno y perfecto para cualquier plato. Todas las porciones vienen en bolsas al vacío.",
+  },
+  {
+    id: "visceras",
+    label: "Vísceras",
+    description:
+      "Hígado, corazón, bofe, huesos y más, listos para preparar. Todas las porciones vienen en bolsas al vacío.",
+  },
 ];
