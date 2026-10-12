@@ -94,7 +94,7 @@ export function ProductCard({ product, onAdded, index = 0 }: ProductCardProps) {
               <img
                 src={imgurVariant(product.image, "m")}
                 srcSet={imgurSrcSet(product.image)}
-                sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 230px"
+                sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 300px"
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
