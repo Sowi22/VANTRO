@@ -9,8 +9,9 @@ import { faqItems } from "@/data/faq";
 export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
+  // Solo desde tableta: en el celular la página termina en el catálogo.
   return (
-    <section className="bg-cloud py-14">
+    <section className="hidden bg-cloud py-14 sm:block">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <SectionTitle title="Preguntas frecuentes" align="center" className="mb-8" />
 
