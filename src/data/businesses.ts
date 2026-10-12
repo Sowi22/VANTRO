@@ -37,7 +37,11 @@ export const businessTypes: BusinessType[] = [
 
 /** Fuente: CMS Capítulo 2 — "categorías principales de proteínas" (Res, Pollo, Cerdo y Vísceras). */
 export const proteinCategories: ProteinCategoryOption[] = [
-  { id: "res", label: "Res", description: "Cortes seleccionados de la mejor calidad." },
+  {
+    id: "res",
+    label: "Res",
+    description: "Cortes seleccionados de la mejor calidad. Todas las porciones vienen en bolsas al vacío.",
+  },
   { id: "pollo", label: "Pollo", description: "Fresco, natural y listo para tus recetas." },
   { id: "cerdo", label: "Cerdo", description: "Jugoso, tierno y perfecto para cualquier plato." },
   { id: "visceras", label: "Vísceras", description: "Hígado, corazón, bofe, huesos y más, listos para preparar." },
